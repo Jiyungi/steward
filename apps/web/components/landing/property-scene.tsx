@@ -1,163 +1,433 @@
 "use client";
 
-import { Edges, Line, RoundedBox } from "@react-three/drei";
+import { Line, MeshReflectorMaterial, RoundedBox } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useReducedMotion } from "motion/react";
-import { useMemo, useRef } from "react";
-import { CatmullRomCurve3, MathUtils, Vector3 } from "three";
-import type { Group, Mesh } from "three";
+import { useLayoutEffect, useMemo, useRef } from "react";
+import {
+  AdditiveBlending,
+  CanvasTexture,
+  CatmullRomCurve3,
+  Color,
+  DoubleSide,
+  MathUtils,
+  Object3D,
+  Vector3,
+} from "three";
+import type { Group, InstancedMesh, Mesh, MeshBasicMaterial, PointLight } from "three";
 
 import styles from "./scene.module.css";
 
 type Point3 = [number, number, number];
 
-const harbor = "#55b9e4";
-const harborBright = "#bcecff";
-const harborDeep = "#0f5c7f";
-const amber = "#f1b94f";
-const neutral = "#91a3ab";
-const ink = "#091217";
+/** Warm = an open guest problem. Cool = Steward and verified closure. */
+const INK = "#04070a";
+const STRUCTURE = "#16303f";
+const HARBOR = "#42a9dc";
+const HARBOR_PALE = "#c9f2ff";
+const AMBER = "#ffab3d";
+const AMBER_PALE = "#ffd9a0";
+
+const WINDOW_DARK = new Color("#0b1a25");
+const WINDOW_DIM = new Color("#2c6f92");
+const WINDOW_COOL = new Color("#8fd4f5");
+const WINDOW_WARM = new Color("#c98b45");
+
+interface BuildingSpec {
+  /** Footprint centre on the ground plane. */
+  pos: [number, number];
+  /** Width, height, depth. */
+  size: Point3;
+}
+
+/** The building whose window carries the incident. */
+const HERO: BuildingSpec = { pos: [-1.35, 0.35], size: [1.95, 3.15, 1.75] };
+
+const BUILDINGS: BuildingSpec[] = [
+  HERO,
+  { pos: [0.95, -1.45], size: [1.5, 4.55, 1.45] },
+  { pos: [1.55, 1.05], size: [2.1, 1.75, 1.6] },
+  { pos: [-3.25, -0.95], size: [1.2, 2.5, 1.2] },
+  { pos: [-3.05, 1.35], size: [1.45, 1.15, 1.3] },
+  { pos: [3.15, -0.35], size: [1.25, 2.15, 1.15] },
+];
+const HERO_WINDOW: Point3 = [HERO.pos[0] + 0.42, 2.12, HERO.pos[1] + HERO.size[2] / 2 + 0.03];
+const NODE: Point3 = [-0.15, 4.85, 1.25];
+const VENDOR: Point3 = [3.7, 0.42, 1.75];
 
 const signalPath: Point3[] = [
-  [-4.2, 0.05, 1.5],
-  [-3.4, 0.28, 0.92],
-  [-2.35, 0.4, 0.22],
-  [-1.1, 1.2, -0.05],
-  [0, 1.72, 0],
+  HERO_WINDOW,
+  [HERO_WINDOW[0] + 0.35, 2.85, HERO_WINDOW[2] + 0.35],
+  [-0.15, 3.6, 0.95],
+  NODE,
 ];
 
 const actionPath: Point3[] = [
-  [0.14, 1.66, 0],
-  [1.25, 1.25, 0.08],
-  [2.25, 0.58, 0.62],
-  [3.64, 0.24, 0.82],
+  NODE,
+  [1.5, 3.65, 1.15],
+  [2.85, 2.15, 1.6],
+  [VENDOR[0], VENDOR[1] + 0.55, VENDOR[2]],
 ];
 
 const evidencePath: Point3[] = [
-  [3.62, 0.42, 0.82],
-  [3.48, 1.1, 0.58],
-  [3.08, 1.88, 0.08],
-  [2.34, 2.4, -0.52],
+  [VENDOR[0], VENDOR[1] + 0.55, VENDOR[2]],
+  [2.6, 1.7, 2.35],
+  [0.85, 1.6, 2.4],
+  [HERO_WINDOW[0] + 0.05, HERO_WINDOW[1] - 0.15, HERO_WINDOW[2] + 0.25],
 ];
 
 const stagePose = [
-  { x: -0.2, y: -0.54 },
-  { x: -0.24, y: -0.42 },
-  { x: -0.18, y: -0.31 },
-  { x: -0.27, y: -0.23 },
+  { x: -0.03, y: 0.16 },
+  { x: -0.05, y: 0.05 },
+  { x: -0.04, y: -0.09 },
+  { x: -0.02, y: 0.02 },
 ] as const;
 
-function Beam({
-  position,
-  scale,
-  color = "#1a333e",
-}: {
-  position: Point3;
-  scale: Point3;
-  color?: string;
-}) {
-  return (
-    <mesh position={position} scale={scale}>
-      <boxGeometry />
-      <meshStandardMaterial color={color} roughness={0.5} metalness={0.28} />
-      <Edges color="#396170" threshold={12} />
-    </mesh>
-  );
+function seeded(seed: number): () => number {
+  let value = seed;
+  return () => {
+    value = (value * 1664525 + 1013904223) % 4294967296;
+    return value / 4294967296;
+  };
 }
 
-function RoomVolume({
+/** Radial falloff used for additive glows and the ground light pool. */
+function makeGlowTexture(): CanvasTexture {
+  const size = 128;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const context = canvas.getContext("2d");
+
+  if (context !== null) {
+    const gradient = context.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    gradient.addColorStop(0, "rgba(255,255,255,1)");
+    gradient.addColorStop(0.18, "rgba(255,255,255,0.55)");
+    gradient.addColorStop(0.45, "rgba(255,255,255,0.16)");
+    gradient.addColorStop(1, "rgba(255,255,255,0)");
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, size, size);
+  }
+
+  return new CanvasTexture(canvas);
+}
+
+/** Faint site grid so the massing sits on a plane instead of floating in black. */
+function makeGridTexture(): CanvasTexture {
+  const size = 512;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const context = canvas.getContext("2d");
+
+  if (context !== null) {
+    const step = size / 24;
+    context.strokeStyle = "rgba(120, 196, 236, 0.5)";
+    context.lineWidth = 1;
+    context.beginPath();
+    for (let i = 0; i <= 24; i += 1) {
+      context.moveTo(i * step, 0);
+      context.lineTo(i * step, size);
+      context.moveTo(0, i * step);
+      context.lineTo(size, i * step);
+    }
+    context.stroke();
+
+    // Fade the grid out towards the horizon so it never reads as a hard edge.
+    const mask = context.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    mask.addColorStop(0, "rgba(0,0,0,1)");
+    mask.addColorStop(0.45, "rgba(0,0,0,0.5)");
+    mask.addColorStop(1, "rgba(0,0,0,0)");
+    context.globalCompositeOperation = "destination-in";
+    context.fillStyle = mask;
+    context.fillRect(0, 0, size, size);
+  }
+
+  return new CanvasTexture(canvas);
+}
+
+function Glow({
   position,
-  size,
   color,
+  scale,
+  opacity,
+  texture,
 }: {
   position: Point3;
-  size: Point3;
   color: string;
+  scale: number;
+  opacity: number;
+  texture: CanvasTexture;
 }) {
   return (
-    <RoundedBox args={size} radius={0.08} smoothness={2} position={position}>
-      <meshStandardMaterial color={color} roughness={0.54} metalness={0.18} />
-      <Edges color="#315867" threshold={16} />
-    </RoundedBox>
+    <sprite position={position} scale={[scale, scale, scale]}>
+      <spriteMaterial
+        map={texture}
+        color={color}
+        transparent
+        opacity={opacity}
+        blending={AdditiveBlending}
+        depthWrite={false}
+        toneMapped={false}
+      />
+    </sprite>
   );
 }
 
-function GroundLattice() {
-  const rows = [-3, -2, -1, 0, 1, 2, 3];
-  const columns = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5];
+/**
+ * Every facade window in one instanced draw call. Colours are seeded so the
+ * composition is identical across renders and visual baselines.
+ */
+function Facades() {
+  const mesh = useRef<InstancedMesh>(null);
+
+  const cells = useMemo(() => {
+    const random = seeded(20260731);
+    const result: { p: Point3; ry: number; tone: number }[] = [];
+
+    for (const building of BUILDINGS) {
+      const [width, height, depth] = building.size;
+      const columns = Math.max(2, Math.round(width / 0.46));
+      const rows = Math.max(3, Math.round(height / 0.5));
+
+      for (let row = 0; row < rows; row += 1) {
+        for (let column = 0; column < columns; column += 1) {
+          const offsetX = -width / 2 + ((column + 0.5) * width) / columns;
+          const offsetY = ((row + 0.65) * height) / rows;
+
+          result.push({
+            p: [building.pos[0] + offsetX, offsetY, building.pos[1] + depth / 2 + 0.012],
+            ry: 0,
+            tone: random(),
+          });
+          result.push({
+            p: [building.pos[0] + width / 2 + 0.012, offsetY, building.pos[1] + offsetX],
+            ry: Math.PI / 2,
+            tone: random(),
+          });
+        }
+      }
+    }
+
+    return result;
+  }, []);
+
+  useLayoutEffect(() => {
+    const instanced = mesh.current;
+    if (instanced === null) return;
+
+    const dummy = new Object3D();
+
+    cells.forEach((cell, index) => {
+      dummy.position.set(cell.p[0], cell.p[1], cell.p[2]);
+      dummy.rotation.set(0, cell.ry, 0);
+      dummy.scale.set(0.19, 0.26, 1);
+      dummy.updateMatrix();
+      instanced.setMatrixAt(index, dummy.matrix);
+
+      const tone =
+        cell.tone < 0.52
+          ? WINDOW_DARK
+          : cell.tone < 0.84
+            ? WINDOW_DIM
+            : cell.tone < 0.95
+              ? WINDOW_COOL
+              : WINDOW_WARM;
+      instanced.setColorAt(index, tone);
+    });
+
+    instanced.instanceMatrix.needsUpdate = true;
+    if (instanced.instanceColor !== null) instanced.instanceColor.needsUpdate = true;
+  }, [cells]);
 
   return (
-    <group position={[0, -1.13, 0]}>
-      {rows.map((z) => (
-        <Line
-          key={`row-${z}`}
-          points={[
-            [-6.1, 0, z],
-            [6.1, 0, z],
-          ]}
-          color="#2b4b58"
-          transparent
-          opacity={0.24}
-          lineWidth={0.55}
-        />
-      ))}
-      {columns.map((x) => (
-        <Line
-          key={`column-${x}`}
-          points={[
-            [x, 0, -3.5],
-            [x, 0, 3.5],
-          ]}
-          color="#2b4b58"
-          transparent
-          opacity={0.2}
-          lineWidth={0.55}
-        />
+    <instancedMesh ref={mesh} args={[undefined, undefined, cells.length]}>
+      <planeGeometry args={[1, 1]} />
+      <meshBasicMaterial toneMapped={false} />
+    </instancedMesh>
+  );
+}
+
+function Massing() {
+  return (
+    <group>
+      {BUILDINGS.map((building) => (
+        <RoundedBox
+          key={`${building.pos[0]}-${building.pos[1]}`}
+          args={building.size}
+          radius={0.045}
+          smoothness={2}
+          position={[building.pos[0], building.size[1] / 2, building.pos[1]]}
+        >
+          <meshStandardMaterial color={STRUCTURE} roughness={0.52} metalness={0.22} />
+        </RoundedBox>
       ))}
     </group>
   );
 }
 
-function SignalPulse({
-  path,
+/** Voice ripples leaving the property — the call itself, not fake progress. */
+function VoiceRipples({
   color,
-  offset,
   active,
   reducedMotion,
 }: {
-  path: Point3[];
   color: string;
-  offset: number;
   active: boolean;
   reducedMotion: boolean;
 }) {
-  const pulse = useRef<Mesh>(null);
-  const curve = useMemo(
-    () => new CatmullRomCurve3(path.map(([x, y, z]) => new Vector3(x, y, z))),
-    [path],
-  );
+  const rings = useRef<Mesh[]>([]);
+  const count = 3;
 
   useFrame(({ clock }) => {
-    if (pulse.current === null || reducedMotion) return;
-    const progress = (clock.elapsedTime * 0.12 + offset) % 1;
-    pulse.current.position.copy(curve.getPoint(progress));
+    if (reducedMotion) return;
+    const time = clock.elapsedTime;
+
+    rings.current.forEach((ring, index) => {
+      if (ring === undefined || ring === null) return;
+      const progress = (time * 0.3 + index / count) % 1;
+      const scale = 0.3 + progress * 1.5;
+      ring.scale.set(scale, scale, scale);
+      const material = ring.material as MeshBasicMaterial;
+      material.opacity = (1 - progress) ** 1.4 * (active ? 1 : 0.3);
+    });
   });
 
-  const fixedPosition = curve.getPoint(offset % 1);
-
   return (
-    <mesh ref={pulse} position={fixedPosition} scale={active ? 1 : 0.62}>
-      <sphereGeometry args={[0.075, 14, 14]} />
-      <meshStandardMaterial
-        color={color}
-        emissive={color}
-        emissiveIntensity={active ? 4.5 : 1.2}
-      />
-    </mesh>
+    <group position={[HERO_WINDOW[0], HERO_WINDOW[1], HERO_WINDOW[2] + 0.04]}>
+      {Array.from({ length: count }, (_, index) => {
+        const staticProgress = (index + 1) / (count + 1);
+        const staticScale = 0.3 + staticProgress * 1.5;
+        return (
+          <mesh
+            key={index}
+            ref={(instance) => {
+              if (instance !== null) rings.current[index] = instance;
+            }}
+            scale={reducedMotion ? staticScale : 0.45}
+          >
+            <ringGeometry args={[0.945, 0.965, 96]} />
+            <meshBasicMaterial
+              color={color}
+              transparent
+              opacity={reducedMotion ? (1 - staticProgress) * (active ? 0.85 : 0.25) : 0}
+              blending={AdditiveBlending}
+              depthWrite={false}
+              side={DoubleSide}
+              toneMapped={false}
+            />
+          </mesh>
+        );
+      })}
+    </group>
   );
 }
 
-function Pathway({
+/** Steward: an aperture that holds the incident context between stages. */
+function CoordinationNode({
+  active,
+  reducedMotion,
+  texture,
+}: {
+  active: boolean;
+  reducedMotion: boolean;
+  texture: CanvasTexture;
+}) {
+  const outer = useRef<Mesh>(null);
+  const inner = useRef<Mesh>(null);
+
+  useFrame(({ clock }) => {
+    if (reducedMotion) return;
+    const time = clock.elapsedTime;
+    const rate = active ? 1 : 0.28;
+    if (outer.current !== null) outer.current.rotation.z = time * 0.35 * rate;
+    if (inner.current !== null) inner.current.rotation.z = -time * 0.52 * rate;
+  });
+
+  return (
+    <group position={NODE} rotation={[0.22, -0.32, 0]}>
+      <mesh ref={outer}>
+        <torusGeometry args={[0.62, 0.012, 8, 96]} />
+        <meshBasicMaterial
+          color={HARBOR}
+          transparent
+          opacity={active ? 0.95 : 0.4}
+          toneMapped={false}
+        />
+      </mesh>
+      <mesh ref={inner} rotation={[0, 0, 0.6]}>
+        <torusGeometry args={[0.44, 0.018, 8, 80, Math.PI * 1.45]} />
+        <meshBasicMaterial
+          color={HARBOR_PALE}
+          transparent
+          opacity={active ? 0.9 : 0.32}
+          toneMapped={false}
+        />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[0.085, 20, 20]} />
+        <meshBasicMaterial color={HARBOR_PALE} toneMapped={false} />
+      </mesh>
+      <Glow
+        position={[0, 0, 0]}
+        color={HARBOR}
+        scale={active ? 3.4 : 1.9}
+        opacity={active ? 0.62 : 0.28}
+        texture={texture}
+      />
+    </group>
+  );
+}
+
+/** The approved vendor or tool that receives the work. */
+function VendorMarker({
+  active,
+  reducedMotion,
+  texture,
+}: {
+  active: boolean;
+  reducedMotion: boolean;
+  texture: CanvasTexture;
+}) {
+  const beacon = useRef<Mesh>(null);
+
+  useFrame(({ clock }) => {
+    if (reducedMotion || beacon.current === null) return;
+    const pulse = active ? 1 + Math.sin(clock.elapsedTime * 2.6) * 0.18 : 1;
+    beacon.current.scale.setScalar(pulse);
+  });
+
+  return (
+    <group position={[VENDOR[0], 0, VENDOR[2]]}>
+      <RoundedBox args={[1.05, 0.4, 0.85]} radius={0.05} smoothness={2} position={[0, 0.2, 0]}>
+        <meshStandardMaterial color="#101f2a" roughness={0.5} metalness={0.55} />
+      </RoundedBox>
+      <mesh position={[0, 0.42, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[0.3, 0.335, 48]} />
+        <meshBasicMaterial
+          color={active ? HARBOR_PALE : HARBOR}
+          transparent
+          opacity={active ? 0.9 : 0.3}
+          side={DoubleSide}
+          toneMapped={false}
+        />
+      </mesh>
+      <mesh ref={beacon} position={[0, 0.62, 0]}>
+        <sphereGeometry args={[0.075, 18, 18]} />
+        <meshBasicMaterial color={active ? HARBOR_PALE : HARBOR} toneMapped={false} />
+      </mesh>
+      <Glow
+        position={[0, 0.62, 0]}
+        color={HARBOR}
+        scale={active ? 2.2 : 1.1}
+        opacity={active ? 0.55 : 0.2}
+        texture={texture}
+      />
+    </group>
+  );
+}
+
+function Thread({
   points,
   color,
   active,
@@ -166,162 +436,223 @@ function Pathway({
   color: string;
   active: boolean;
 }) {
+  const curve = useMemo(
+    () => new CatmullRomCurve3(points.map(([x, y, z]) => new Vector3(x, y, z))),
+    [points],
+  );
+  const resolved = useMemo(() => curve.getPoints(64).map((p) => [p.x, p.y, p.z] as Point3), [curve]);
+
   return (
     <>
       <Line
-        points={points}
+        points={resolved}
         color={color}
         transparent
-        opacity={active ? 0.95 : 0.2}
-        lineWidth={active ? 1.7 : 0.8}
+        opacity={active ? 0.92 : 0.07}
+        lineWidth={active ? 1.7 : 0.5}
       />
-      <Line points={points} color={color} transparent opacity={active ? 0.16 : 0.04} lineWidth={8} />
+      {active ? (
+        <Line points={resolved} color={color} transparent opacity={0.14} lineWidth={7} />
+      ) : null}
     </>
   );
 }
 
-function PropertyModel({ activeStage, reducedMotion }: { activeStage: number; reducedMotion: boolean }) {
+function TravellingPulse({
+  points,
+  color,
+  active,
+  reducedMotion,
+  texture,
+  offset,
+}: {
+  points: Point3[];
+  color: string;
+  active: boolean;
+  reducedMotion: boolean;
+  texture: CanvasTexture;
+  offset: number;
+}) {
   const group = useRef<Group>(null);
+  const curve = useMemo(
+    () => new CatmullRomCurve3(points.map(([x, y, z]) => new Vector3(x, y, z))),
+    [points],
+  );
+
+  useFrame(({ clock }) => {
+    if (reducedMotion || group.current === null || !active) return;
+    const progress = (clock.elapsedTime * 0.34 + offset) % 1;
+    const point = curve.getPoint(progress);
+    group.current.position.copy(point);
+  });
+
+  const start = curve.getPoint(reducedMotion ? 0.5 : offset % 1);
+
+  if (!active) return null;
+
+  return (
+    <group ref={group} position={[start.x, start.y, start.z]}>
+      <mesh>
+        <sphereGeometry args={[0.052, 16, 16]} />
+        <meshBasicMaterial color={color} toneMapped={false} />
+      </mesh>
+      <Glow position={[0, 0, 0]} color={color} scale={1.05} opacity={0.75} texture={texture} />
+    </group>
+  );
+}
+
+function PropertyModel({
+  activeStage,
+  reducedMotion,
+}: {
+  activeStage: number;
+  reducedMotion: boolean;
+}) {
+  const group = useRef<Group>(null);
+  const heroLight = useRef<PointLight>(null);
   const compact = useThree((state) => state.size.width < 640);
   const pose = stagePose[activeStage] ?? stagePose[0];
+  const texture = useMemo(makeGlowTexture, []);
+  const gridTexture = useMemo(makeGridTexture, []);
 
-  useFrame(({ pointer }, delta) => {
-    if (reducedMotion || group.current === null) return;
-    const targetX = pose.x + pointer.y * 0.055;
-    const targetY = pose.y + pointer.x * 0.07;
-    const smoothing = Math.min(delta * 2.2, 1);
-    group.current.rotation.x = MathUtils.lerp(group.current.rotation.x, targetX, smoothing);
-    group.current.rotation.y = MathUtils.lerp(group.current.rotation.y, targetY, smoothing);
+  /** The incident stays warm until evidence closes it. */
+  const verified = activeStage === 3;
+  const incidentColor = verified ? HARBOR_PALE : AMBER;
+  const incidentPale = verified ? HARBOR_PALE : AMBER_PALE;
+
+  useFrame(({ pointer, clock }, delta) => {
+    if (reducedMotion) return;
+
+    if (group.current !== null) {
+      const targetX = pose.x + pointer.y * 0.045;
+      const targetY = pose.y + pointer.x * 0.09;
+      const smoothing = Math.min(delta * 2.4, 1);
+      group.current.rotation.x = MathUtils.lerp(group.current.rotation.x, targetX, smoothing);
+      group.current.rotation.y = MathUtils.lerp(group.current.rotation.y, targetY, smoothing);
+    }
+
+    if (heroLight.current !== null) {
+      const breathe = 1 + Math.sin(clock.elapsedTime * 1.9) * 0.14;
+      heroLight.current.intensity = (activeStage === 0 ? 16 : 9) * breathe;
+    }
   });
 
   return (
     <group
       ref={group}
       rotation={[pose.x, pose.y, 0]}
-      position={compact ? [0.4, 1.42, 0] : [0.85, -0.05, 0]}
-      scale={compact ? 0.63 : 0.9}
+      position={compact ? [0.2, 0.75, 0] : [0.75, -1.35, 0]}
+      scale={compact ? 0.52 : 0.95}
     >
-      <GroundLattice />
-
-      <RoundedBox args={[7.5, 0.24, 4.7]} radius={0.1} smoothness={2} position={[0, -1, 0]}>
-        <meshStandardMaterial color="#0c181e" roughness={0.7} metalness={0.22} />
-        <Edges color="#244553" threshold={14} />
-      </RoundedBox>
-
-      <RoomVolume position={[-1.95, -0.2, -0.55]} size={[2.5, 1.36, 2.4]} color="#142b34" />
-      <RoomVolume position={[1.25, -0.38, 0.78]} size={[2.05, 1, 1.9]} color="#10262f" />
-      <RoomVolume position={[2.23, -0.08, -0.98]} size={[1.62, 1.58, 1.4]} color="#17313b" />
-
-      <Beam position={[-3.38, -0.04, -1.35]} scale={[0.08, 1.02, 0.08]} />
-      <Beam position={[-0.58, -0.04, -1.35]} scale={[0.08, 1.02, 0.08]} />
-      <Beam position={[-1.98, 0.96, -1.35]} scale={[1.48, 0.08, 0.08]} />
-      <Beam position={[-1.98, 0.96, 0.24]} scale={[1.48, 0.08, 0.08]} />
-      <Beam position={[-3.38, 0.96, -0.55]} scale={[0.08, 0.08, 0.87]} />
-
-      <Beam position={[0.32, 0.16, -1.7]} scale={[0.07, 1.12, 0.07]} color="#1d3e4a" />
-      <Beam position={[0.32, 1.27, -0.6]} scale={[0.07, 0.07, 1.15]} color="#1d3e4a" />
-      <Beam position={[0.32, 0.16, 0.52]} scale={[0.07, 1.12, 0.07]} color="#1d3e4a" />
-
-      <mesh position={[-4.2, 0.05, 1.5]}>
-        <sphereGeometry args={[0.17, 22, 22]} />
-        <meshStandardMaterial
-          color={amber}
-          emissive={amber}
-          emissiveIntensity={activeStage === 0 ? 5 : 1.8}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+        <planeGeometry args={[46, 46]} />
+        <MeshReflectorMaterial
+          resolution={256}
+          blur={[420, 120]}
+          mixBlur={1.1}
+          mixStrength={2.6}
+          depthScale={1}
+          minDepthThreshold={0.4}
+          maxDepthThreshold={1.25}
+          color="#05090d"
+          metalness={0.7}
+          roughness={0.78}
+          mirror={0.72}
         />
       </mesh>
-      <mesh position={[-4.2, 0.05, 1.5]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[0.34, 0.018, 10, 42]} />
-        <meshBasicMaterial color={amber} transparent opacity={activeStage === 0 ? 0.9 : 0.25} />
-      </mesh>
 
-      <group position={[0, 1.72, 0]} rotation={[0.1, 0.12, 0]}>
-        <mesh>
-          <octahedronGeometry args={[0.36, 0]} />
-          <meshStandardMaterial
-            color={harbor}
-            emissive={harborDeep}
-            emissiveIntensity={activeStage === 1 ? 5 : 2.2}
-            metalness={0.32}
-            roughness={0.3}
-          />
-        </mesh>
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[0.62, 0.018, 10, 48]} />
-          <meshBasicMaterial color={harbor} transparent opacity={activeStage === 1 ? 0.86 : 0.18} />
-        </mesh>
-        <mesh rotation={[0, Math.PI / 2, 0]}>
-          <torusGeometry args={[0.83, 0.012, 10, 52]} />
-          <meshBasicMaterial color={harborBright} transparent opacity={activeStage === 1 ? 0.42 : 0.08} />
-        </mesh>
-      </group>
-
-      <group position={[3.64, 0.24, 0.82]} rotation={[0.12, -0.18, 0.08]}>
-        <mesh>
-          <boxGeometry args={[0.5, 0.5, 0.5]} />
-          <meshStandardMaterial
-            color={neutral}
-            emissive="#39515a"
-            emissiveIntensity={activeStage === 2 ? 2.8 : 0.45}
-            metalness={0.55}
-            roughness={0.3}
-          />
-          <Edges color={activeStage === 2 ? harborBright : "#9babb2"} />
-        </mesh>
-        <Beam position={[-0.48, 0, 0]} scale={[0.26, 0.04, 0.04]} color="#607681" />
-        <Beam position={[0.48, 0, 0]} scale={[0.26, 0.04, 0.04]} color="#607681" />
-      </group>
-
-      <group position={[2.34, 2.4, -0.52]} rotation={[0.1, 0.3, 0]}>
-        <mesh>
-          <torusGeometry args={[0.42, 0.055, 14, 48]} />
-          <meshStandardMaterial
-            color={harbor}
-            emissive={harborDeep}
-            emissiveIntensity={activeStage === 3 ? 4.2 : 1.3}
-          />
-        </mesh>
-        <mesh>
-          <sphereGeometry args={[0.1, 16, 16]} />
-          <meshStandardMaterial color={harborBright} emissive={harbor} emissiveIntensity={3.2} />
-        </mesh>
-        <Line
-          points={[
-            [-0.2, 0, 0.02],
-            [-0.04, -0.16, 0.02],
-            [0.24, 0.2, 0.02],
-          ]}
-          color={harborBright}
-          lineWidth={2.2}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.008, 0]}>
+        <planeGeometry args={[26, 26]} />
+        <meshBasicMaterial
+          map={gridTexture}
           transparent
-          opacity={activeStage === 3 ? 1 : 0.45}
+          opacity={0.15}
+          depthWrite={false}
+          toneMapped={false}
         />
-      </group>
+      </mesh>
 
-      <Pathway points={signalPath} color={amber} active={activeStage === 0} />
-      <Pathway points={actionPath} color={harbor} active={activeStage === 1 || activeStage === 2} />
-      <Pathway points={evidencePath} color={neutral} active={activeStage === 3} />
+      <Massing />
+      <Facades />
 
-      <SignalPulse
-        path={signalPath}
-        color={amber}
-        offset={0.08}
+      {/* Warm pool of light the incident casts on the ground. */}
+      <sprite
+        position={[HERO.pos[0], 0.03, HERO.pos[1] + 0.6]}
+        scale={[6.2, 6.2, 6.2]}
+        rotation={[0, 0, 0]}
+      >
+        <spriteMaterial
+          map={texture}
+          color={incidentColor}
+          transparent
+          opacity={activeStage === 0 ? 0.34 : 0.2}
+          blending={AdditiveBlending}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </sprite>
+
+      <VoiceRipples
+        color={incidentColor}
         active={activeStage === 0}
         reducedMotion={reducedMotion}
       />
-      <SignalPulse
-        path={actionPath}
-        color={harborBright}
-        offset={0.38}
-        active={activeStage === 1 || activeStage === 2}
-        reducedMotion={reducedMotion}
+
+      {/* The lit window: one guest, one open problem. */}
+      <mesh position={HERO_WINDOW}>
+        <planeGeometry args={[0.24, 0.34]} />
+        <meshBasicMaterial color={incidentPale} toneMapped={false} />
+      </mesh>
+      <Glow
+        position={[HERO_WINDOW[0], HERO_WINDOW[1], HERO_WINDOW[2] + 0.02]}
+        color={incidentColor}
+        scale={activeStage === 0 ? 0.85 : 0.62}
+        opacity={activeStage === 0 ? 0.95 : 0.55}
+        texture={texture}
       />
-      <SignalPulse
-        path={evidencePath}
-        color={neutral}
-        offset={0.68}
+      <pointLight
+        ref={heroLight}
+        color={incidentColor}
+        intensity={12}
+        distance={3.2}
+        decay={2.4}
+        position={[HERO_WINDOW[0], HERO_WINDOW[1], HERO_WINDOW[2] + 0.55]}
+      />
+
+      <CoordinationNode
+        active={activeStage === 1}
+        reducedMotion={reducedMotion}
+        texture={texture}
+      />
+      <VendorMarker active={activeStage === 2} reducedMotion={reducedMotion} texture={texture} />
+
+      <Thread points={signalPath} color={AMBER} active={activeStage === 0 || activeStage === 1} />
+      <Thread points={actionPath} color={HARBOR} active={activeStage === 2} />
+      <Thread points={evidencePath} color={HARBOR_PALE} active={activeStage === 3} />
+
+      <TravellingPulse
+        points={signalPath}
+        color={AMBER_PALE}
+        active={activeStage === 0 || activeStage === 1}
+        reducedMotion={reducedMotion}
+        texture={texture}
+        offset={0.1}
+      />
+      <TravellingPulse
+        points={actionPath}
+        color={HARBOR_PALE}
+        active={activeStage === 2}
+        reducedMotion={reducedMotion}
+        texture={texture}
+        offset={0.35}
+      />
+      <TravellingPulse
+        points={evidencePath}
+        color={HARBOR_PALE}
         active={activeStage === 3}
         reducedMotion={reducedMotion}
+        texture={texture}
+        offset={0.6}
       />
     </group>
   );
@@ -340,19 +671,18 @@ export default function PropertyScene({
   return (
     <div className={styles.canvasWrap} aria-hidden="true" data-testid="three-scene">
       <Canvas
-        camera={{ position: [0, 2.45, 10.7], fov: 39 }}
+        camera={{ position: [0, 3.7, 12.6], fov: 39 }}
         dpr={[1, 1.5]}
         frameloop={reducedMotion ? "demand" : "always"}
         gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
         onCreated={onReady}
       >
-        <fog attach="fog" args={[ink, 10, 19]} />
-        <ambientLight intensity={0.64} />
-        <hemisphereLight args={["#a7e2fa", "#081015", 1.5]} />
-        <directionalLight color="#d9f4ff" intensity={2.8} position={[2, 7, 6]} />
-        <pointLight color={amber} intensity={20} distance={5.5} position={[-4.1, 0.5, 2]} />
-        <pointLight color={harbor} intensity={22} distance={7} position={[0, 2.4, 1]} />
-        <pointLight color={harbor} intensity={10} distance={5} position={[3.2, 2.2, 0]} />
+        <fog attach="fog" args={[INK, 15, 34]} />
+        <ambientLight intensity={0.22} />
+        <hemisphereLight args={["#4d92b8", "#03060a", 1.1]} />
+        {/* Cool key from upper left carves the lit face; dim fill keeps the far side readable. */}
+        <directionalLight color="#bfe4fa" intensity={2.6} position={[-7, 10, 7]} />
+        <directionalLight color="#2b6f96" intensity={0.7} position={[8, 4, -5]} />
         <PropertyModel activeStage={activeStage} reducedMotion={reducedMotion} />
       </Canvas>
     </div>
