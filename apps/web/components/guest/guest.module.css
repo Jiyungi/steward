@@ -1,0 +1,824 @@
+.guestShell {
+  min-height: 100svh;
+  background:
+    linear-gradient(90deg, oklch(0.48 0.105 35 / 0.035) 1px, transparent 1px),
+    linear-gradient(oklch(0.48 0.105 35 / 0.035) 1px, transparent 1px),
+    linear-gradient(180deg, var(--color-surface) 0, var(--color-bg) 17rem);
+  background-size: 5rem 5rem, 5rem 5rem, auto;
+  color: var(--color-ink);
+}
+
+.guestNav {
+  display: flex;
+  width: min(100% - 2.5rem, 76rem);
+  min-height: 5rem;
+  margin-inline: auto;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-muted);
+  font-size: 0.84rem;
+}
+
+.guestBrand {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.7rem;
+  color: var(--color-ink);
+  font-size: 1rem;
+  font-weight: 720;
+  letter-spacing: -0.025em;
+  text-decoration: none;
+}
+
+.guestBrandMark {
+  position: relative;
+  display: grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  place-items: center;
+}
+
+.guestBrandMark i {
+  position: absolute;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+
+.guestBrandMark i:first-child {
+  transform: translate(-0.52rem, 0.36rem);
+}
+
+.guestBrandMark i:nth-child(2) {
+  width: 0.52rem;
+  height: 0.52rem;
+}
+
+.guestBrandMark i:last-child {
+  background: var(--color-signal);
+  transform: translate(0.52rem, -0.36rem);
+}
+
+.sessionLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.48rem;
+}
+
+.sessionLabel > i {
+  width: 0.45rem;
+  height: 0.45rem;
+  border: 1px solid var(--color-primary-strong);
+  border-radius: 50%;
+  background: var(--color-primary-soft);
+}
+
+.guestColumn {
+  width: min(100% - 2rem, 41rem);
+  margin-inline: auto;
+  padding: 1.5rem 0 5rem;
+}
+
+.connectionBar {
+  position: sticky;
+  top: 0.75rem;
+  z-index: 10;
+  display: grid;
+  min-height: 4.3rem;
+  padding: 0.62rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.85rem;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.connectionIcon {
+  display: grid;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 0.62rem;
+  place-items: center;
+  background: var(--color-surface-strong);
+  color: var(--color-muted);
+  font-weight: 820;
+}
+
+.connection-connected {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.connection-reconnecting,
+.connection-connecting {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+}
+
+.connection-failed {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.connectionBar p {
+  display: flex;
+  min-width: 0;
+  margin: 0;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.connectionBar p strong {
+  font-size: 0.9rem;
+  letter-spacing: -0.01em;
+}
+
+.connectionBar p span {
+  margin-top: 0.18rem;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+
+.modeLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--color-muted);
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.levelMeter {
+  display: flex;
+  height: 0.9rem;
+  align-items: center;
+  gap: 0.13rem;
+}
+
+.levelMeter i {
+  width: 0.12rem;
+  border-radius: 0.1rem;
+  background: var(--color-primary);
+}
+
+.levelMeter i:first-child {
+  height: 0.35rem;
+}
+
+.levelMeter i:nth-child(2) {
+  height: 0.75rem;
+}
+
+.levelMeter i:last-child {
+  height: 0.5rem;
+}
+
+.conversation {
+  position: relative;
+  padding-top: 3.5rem;
+}
+
+.incidentHeader {
+  padding-bottom: 1.7rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.incidentHeader > p,
+.instruction > p:first-of-type,
+.inlineHeading p,
+.outcome > div > p:first-child,
+.contextLabel {
+  margin: 0;
+  color: var(--color-primary-strong);
+  font-size: 0.81rem;
+  font-weight: 720;
+  letter-spacing: -0.005em;
+}
+
+/* Page context, deliberately quieter than the live instruction below it. */
+.incidentHeader h1 {
+  max-width: 18ch;
+  margin: 0.3rem 0 0.7rem;
+  font-size: clamp(1.5rem, 5vw, 1.85rem);
+  font-weight: 620;
+  letter-spacing: -0.032em;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+.incidentHeader > span {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.instruction {
+  position: relative;
+  margin-top: 0;
+  padding: 3rem 0 0 4.5rem;
+}
+
+/* The one thing the guest must read. */
+.instruction h2 {
+  max-width: 14ch;
+  margin: 0.38rem 0 0.7rem;
+  font-size: clamp(2.15rem, 8vw, 3rem);
+  font-weight: 620;
+  letter-spacing: -0.047em;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.instruction > p:last-child {
+  max-width: 31rem;
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.62;
+}
+
+.voicePresence {
+  position: absolute;
+  top: 2.85rem;
+  left: 0;
+  display: grid;
+  width: 3.2rem;
+  height: 3.2rem;
+  place-items: center;
+}
+
+.voicePresence span:first-child {
+  position: absolute;
+  width: 2.9rem;
+  height: 2.9rem;
+  border: 1px solid oklch(0.58 0.105 35 / 0.28);
+  border-radius: 50%;
+  background: var(--color-primary-soft);
+}
+
+.voicePresence span:last-child {
+  z-index: 1;
+  width: 0.7rem;
+  height: 0.7rem;
+  border: 0.17rem solid var(--color-bg);
+  border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow:
+    0 0 0 1px var(--color-primary),
+    0 0 1.2rem oklch(0.58 0.17 31 / 0.34);
+}
+
+.notice {
+  display: flex;
+  margin: 2.4rem 0 0;
+  align-items: flex-start;
+  gap: 0.75rem;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.notice span {
+  display: grid;
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: 0 0 auto;
+  border: 1px solid var(--color-border);
+  border-radius: 0.4rem;
+  place-items: center;
+  color: var(--color-primary-strong);
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.cameraSection {
+  margin-top: 3rem;
+  padding: 0.35rem 0 0.35rem 1.4rem;
+  border-left: 2px solid var(--color-signal);
+}
+
+.inlineHeading {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.inlineHeading h2,
+.cameraRecovery h2 {
+  margin: 0.2rem 0 0;
+  font-size: 1.4rem;
+  letter-spacing: -0.035em;
+}
+
+.cameraGlyph,
+.liveGlyph,
+.neutralGlyph {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: 0 0 auto;
+  border-radius: 0.72rem;
+  place-items: center;
+  background: var(--color-signal-soft);
+  color: var(--color-warning);
+}
+
+.liveGlyph {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.neutralGlyph {
+  background: var(--color-surface-strong);
+  color: var(--color-muted);
+}
+
+.cameraQuestion {
+  margin: 1.35rem 0 0.45rem;
+  color: var(--color-ink) !important;
+  font-size: 1.12rem;
+  font-weight: 680;
+}
+
+.cameraSection > p,
+.cameraRecovery p {
+  margin: 0.45rem 0 0;
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+
+.permissionCopy {
+  max-width: 34rem;
+  font-size: 0.85rem;
+}
+
+.cameraActions {
+  display: flex;
+  margin-top: 1.35rem;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.cameraActions button,
+.secondaryButton,
+.retryButton,
+.accessForm button {
+  min-height: 3rem;
+  padding: 0.7rem 1.05rem;
+  border: 1px solid var(--color-primary-strong);
+  border-radius: 0.65rem;
+  background: var(--color-primary-strong);
+  box-shadow: 0 0.55rem 1.4rem oklch(0.47 0.16 29 / 0.14);
+  color: var(--color-bg);
+  cursor: pointer;
+  font-weight: 720;
+}
+
+.cameraActions button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.secondaryButton {
+  border-color: var(--color-border) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--color-ink) !important;
+}
+
+.previewFrame {
+  position: relative;
+  overflow: hidden;
+  margin-top: 1.25rem;
+  aspect-ratio: 4 / 3;
+  border: 1px solid oklch(0.34 0.04 36);
+  border-radius: 0.9rem;
+  background: oklch(0.15 0.025 32);
+}
+
+.previewFrame video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.previewFrame span {
+  position: absolute;
+  bottom: 0.8rem;
+  left: 0.8rem;
+  padding: 0.35rem 0.55rem;
+  border-radius: 0.38rem;
+  background: oklch(0.13 0.025 32 / 0.9);
+  color: white;
+  font-size: 0.72rem;
+}
+
+.cameraRecovery {
+  display: flex;
+  gap: 1rem;
+}
+
+.cameraRecovery strong {
+  display: inline-block;
+  margin-top: 0.7rem;
+  font-size: 0.88rem;
+}
+
+.incidentPhase {
+  display: flex;
+  margin-top: 3rem;
+  padding: 1.4rem 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+
+.incidentPhase > span {
+  display: grid;
+  width: 1.9rem;
+  height: 1.9rem;
+  flex: 0 0 auto;
+  border-radius: 0.5rem;
+  place-items: center;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  font-weight: 760;
+}
+
+.incidentPhase p {
+  display: flex;
+  margin: 0;
+  flex-direction: column;
+  color: var(--color-muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.incidentPhase strong {
+  margin-bottom: 0.2rem;
+  color: var(--color-ink);
+}
+
+.outcome {
+  display: flex;
+  margin-top: 3rem;
+  padding: 1.4rem;
+  border: 1px solid var(--color-border);
+  border-left-width: 3px;
+  border-radius: 0.9rem;
+  align-items: flex-start;
+  gap: 1rem;
+  background: var(--color-surface);
+}
+
+.outcome > span {
+  display: grid;
+  width: 2.15rem;
+  height: 2.15rem;
+  flex: 0 0 auto;
+  border-radius: 0.58rem;
+  place-items: center;
+  background: var(--color-surface-strong);
+  font-weight: 820;
+}
+
+.outcome h2 {
+  margin: 0.25rem 0 0.45rem;
+  font-size: 1.46rem;
+  letter-spacing: -0.038em;
+}
+
+.outcome div > p:not(:first-child) {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.55;
+}
+
+.outcome small {
+  display: block;
+  margin-top: 0.8rem;
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+
+.resolvedOutcome {
+  border-color: var(--color-success);
+  background: var(--color-success-soft);
+}
+
+.resolvedOutcome > span {
+  background: var(--color-success);
+  color: var(--color-bg);
+}
+
+.failedOutcome {
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+
+.failedOutcome > span {
+  background: var(--color-danger);
+  color: var(--color-bg);
+}
+
+.incompleteOutcome {
+  border-color: var(--color-warning);
+  background: var(--color-warning-soft);
+}
+
+.incompleteOutcome > span {
+  background: var(--color-warning);
+  color: var(--color-bg);
+}
+
+.retryButton {
+  display: grid;
+  width: 100%;
+  min-height: 3rem;
+  margin-top: 1rem;
+  place-items: center;
+  text-decoration: none;
+}
+
+.guestFooter {
+  margin-top: 4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+
+.accessPanel {
+  padding: clamp(3.5rem, 12vh, 7rem) 0 4rem;
+}
+
+.accessPanel::before {
+  display: block;
+  width: 2.8rem;
+  height: 0.18rem;
+  margin-bottom: 1.6rem;
+  background: var(--color-primary);
+  content: "";
+}
+
+.accessPanel:has(.accessSymbol)::before {
+  display: none;
+}
+
+.accessPanel h1 {
+  max-width: 11ch;
+  margin: 0.4rem 0 1rem;
+  font-size: clamp(2.7rem, 10vw, 4.25rem);
+  font-weight: 570;
+  letter-spacing: -0.062em;
+  line-height: 0.96;
+}
+
+.accessPanel > p:not(.contextLabel, .privacyLine) {
+  max-width: 31rem;
+  color: var(--color-muted);
+  font-size: 1.02rem;
+  line-height: 1.62;
+}
+
+.accessForm {
+  display: grid;
+  margin-top: 2rem;
+  gap: 0.55rem;
+}
+
+.accessForm label {
+  font-size: 0.84rem;
+  font-weight: 720;
+}
+
+.accessForm input {
+  width: 100%;
+  min-height: 3.35rem;
+  padding: 0.72rem 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.65rem;
+  background: var(--color-surface-strong);
+  color: var(--color-ink);
+}
+
+.accessForm input::placeholder {
+  color: var(--color-muted);
+}
+
+.accessForm input:focus {
+  border-color: var(--color-primary);
+}
+
+.accessForm button {
+  width: fit-content;
+  margin-top: 0.5rem;
+}
+
+.privacyLine {
+  color: var(--color-muted);
+  font-size: 0.79rem;
+}
+
+.accessSymbol {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0.72rem;
+  place-items: center;
+  background: var(--color-surface-strong);
+  font-size: 1.2rem;
+  font-weight: 820;
+}
+
+.dangerSymbol {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.safetyNote {
+  display: flex;
+  margin-top: 2rem;
+  padding: 1rem 0 0 1rem;
+  border-top: 1px solid var(--color-border);
+  border-left: 2px solid var(--color-primary);
+  flex-direction: column;
+  gap: 0.3rem;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.safetyNote strong {
+  color: var(--color-ink);
+}
+
+.accessSkeleton {
+  display: grid;
+  margin-top: 2rem;
+  gap: 0.65rem;
+}
+
+.accessSkeleton span {
+  width: 100%;
+  height: 0.75rem;
+  border-radius: 0.2rem;
+  background: var(--color-surface-strong);
+}
+
+.accessSkeleton span:last-child {
+  width: 62%;
+}
+
+.devSwitcher {
+  position: fixed;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  z-index: var(--z-overlay);
+  color: var(--color-muted);
+  font-size: 0.74rem;
+}
+
+.devSwitcher details {
+  width: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 0.65rem;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-soft);
+}
+
+.devSwitcher details[open] {
+  width: min(17rem, calc(100vw - 1.5rem));
+}
+
+.devSwitcher summary {
+  padding: 0.58rem 0.72rem;
+  cursor: pointer;
+  color: var(--color-ink);
+  font-weight: 680;
+}
+
+.devControls {
+  display: grid;
+  padding: 0.25rem 0.72rem 0.72rem;
+  gap: 0.55rem;
+}
+
+.devControls label {
+  display: grid;
+  grid-template-columns: 4rem 1fr;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.devControls select,
+.devControls button {
+  min-height: 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.45rem;
+  background: var(--color-surface);
+}
+
+@media (min-width: 50rem) {
+  .guestColumn {
+    padding-top: 2.25rem;
+  }
+
+  .connectionBar {
+    top: 1.25rem;
+  }
+}
+
+@media (max-width: 30rem) {
+  .guestNav {
+    width: calc(100% - 2rem);
+    min-height: 4.5rem;
+  }
+
+  .sessionLabel {
+    font-size: 0.76rem;
+  }
+
+  .conversation {
+    padding-top: 2.8rem;
+  }
+
+  .incidentHeader {
+    padding-bottom: 2.15rem;
+  }
+
+  .instruction {
+    padding-top: 2.5rem;
+  }
+
+  .voicePresence {
+    top: 2.35rem;
+  }
+}
+
+@media (max-width: 22rem) {
+  .guestNav,
+  .guestColumn {
+    width: min(100% - 1.25rem, 41rem);
+  }
+
+  .sessionLabel {
+    display: none;
+  }
+
+  .connectionBar {
+    top: 0.4rem;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .modeLabel {
+    display: none;
+  }
+
+  .instruction {
+    padding-left: 0;
+    padding-top: 6.3rem;
+  }
+
+  .voicePresence {
+    top: 2.35rem;
+  }
+
+  .cameraSection {
+    padding-left: 1rem;
+  }
+
+  .cameraActions {
+    flex-direction: column;
+  }
+
+  .cameraActions button,
+  .secondaryButton,
+  .accessForm button {
+    width: 100%;
+  }
+
+  .outcome {
+    padding: 1rem;
+  }
+}
+
+/*
+ * Status labels inherit their outcome hue. The shared primary blue reads as a
+ * clash against the success and danger fills on dark surfaces.
+ */
+.resolvedOutcome > div > p:first-child {
+  color: var(--color-success);
+}
+
+.failedOutcome > div > p:first-child {
+  color: var(--color-danger);
+}
+
+.incompleteOutcome > div > p:first-child {
+  color: var(--color-warning);
+}

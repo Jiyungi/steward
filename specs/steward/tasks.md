@@ -331,6 +331,7 @@ Person 2 starts only after Task 1.6. These tasks do not depend on Wave 3A runtim
 ### Wave 4 — Person 1 consolidation
 
 - [ ] 4.1 Review and merge the Person 2 branch
+  - Replace `apps/web/app/page.tsx` completely with Person 2's 3D landing-page implementation. The Person 1 version is only a temporary runtime placeholder and is not the approved landing design.
   - Confirm Person 2 did not fork or duplicate Shared_Contracts.
   - Review the 3D asset licenses, bundle impact, fixture coverage, and Impeccable critique.
   - Merge with a deliberate commit.

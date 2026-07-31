@@ -5,6 +5,7 @@
 
 # Local agent tooling
 /skills/
+.vercel/
 
 # Python
 __pycache__/
@@ -16,6 +17,17 @@ __pycache__/
 node_modules/
 dist/
 coverage/
+.next/
+
+# Local browser verification artifacts
+.playwright-cli/
+output/playwright/
+playwright-report/
+test-results/
+*.tsbuildinfo
+
+# Supabase CLI link/cache state
+supabase/.temp/
 
 # Logs and operating-system files
 *.log

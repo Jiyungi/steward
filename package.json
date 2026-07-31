@@ -9,8 +9,15 @@
   },
   "scripts": {
     "build": "pnpm -r --sort build",
+    "dev:web": "pnpm --filter @steward/web dev:local",
+    "dev:agent": "pnpm --filter @steward/agent dev",
+    "start:web": "pnpm --filter @steward/web start:local",
+    "start:agent": "pnpm --filter @steward/agent start",
+    "preflight": "pnpm --filter @steward/agent preflight",
     "typecheck": "pnpm -r --sort typecheck",
     "test": "pnpm -r --sort test",
+    "test:e2e": "pnpm --filter @steward/web test:e2e",
+    "test:e2e:update": "pnpm --filter @steward/web test:e2e:update",
     "trace:smoke": "pnpm build && pnpm --filter @steward/agent start:smoke"
   },
   "devDependencies": {
