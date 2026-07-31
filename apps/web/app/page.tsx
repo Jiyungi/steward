@@ -41,8 +41,8 @@ export default function LandingPage() {
           <p className={styles.summary}>
             Steward coordinates the right action and closes the loop with evidence.
           </p>
-          <Link className={styles.primaryAction} href="/guest?access=demo-entry&fixture=resolved">
-            Open guest demo
+          <Link className={styles.primaryAction} href="/voice">
+            Talk to Steward
             <span aria-hidden="true">↗</span>
           </Link>
         </div>

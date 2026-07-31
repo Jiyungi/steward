@@ -24,7 +24,7 @@ test.describe("landing foundation", () => {
 
     await expect(page.getByRole("navigation", { name: "Primary navigation" })).toBeVisible();
     await expect(page.getByRole("heading", { level: 1, name: "Every signal, carried through." })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Open guest demo" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Talk to Steward" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Signal" })).toBeVisible();
     await expect(page.getByTestId("scene-fallback")).toBeAttached();
     await expect(page.getByTestId("three-scene")).toHaveCount(0);
@@ -52,7 +52,7 @@ test.describe("landing foundation", () => {
     await expect(page.locator("[data-scene-state='unsupported']")).toBeVisible();
     await expect(page.getByTestId("scene-fallback")).toBeVisible();
     await expect(page.getByRole("status")).toContainText("complete static scene");
-    await expect(page.getByRole("link", { name: "Open guest demo" })).toBeEnabled();
+    await expect(page.getByRole("link", { name: "Talk to Steward" })).toBeEnabled();
   });
 
   test("reduced motion preserves a stable composition and all content", async ({ page }) => {
@@ -62,7 +62,7 @@ test.describe("landing foundation", () => {
     expect(await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches)).toBe(true);
     await expect(page.getByTestId("scene-fallback")).toBeAttached();
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Open guest demo" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Talk to Steward" })).toBeVisible();
 
     const canvas = page.getByTestId("three-scene");
     if ((await canvas.count()) > 0) {
@@ -95,7 +95,7 @@ test.describe("landing foundation", () => {
     await page.goto("/");
 
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Open guest demo" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Talk to Steward" })).toBeVisible();
     await expect(page.getByTestId("scene-fallback")).toBeVisible();
     await context.close();
   });
