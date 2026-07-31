@@ -3,7 +3,7 @@
   background:
     linear-gradient(90deg, oklch(0.48 0.105 230 / 0.035) 1px, transparent 1px),
     linear-gradient(oklch(0.48 0.105 230 / 0.035) 1px, transparent 1px),
-    linear-gradient(180deg, oklch(0.955 0.022 230) 0, var(--color-bg) 17rem);
+    linear-gradient(180deg, var(--color-surface) 0, var(--color-bg) 17rem);
   background-size: 5rem 5rem, 5rem 5rem, auto;
   color: var(--color-ink);
 }
@@ -15,7 +15,7 @@
   margin-inline: auto;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid oklch(0.75 0.025 230 / 0.42);
+  border-bottom: 1px solid var(--color-border);
   color: var(--color-muted);
   font-size: 0.84rem;
 }
@@ -89,15 +89,13 @@
   display: grid;
   min-height: 4.3rem;
   padding: 0.62rem 0.7rem;
-  border: 1px solid oklch(0.82 0.025 230);
+  border: 1px solid var(--color-border);
   border-radius: 0.85rem;
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 0.75rem;
-  background: oklch(0.995 0.003 230);
-  box-shadow:
-    0 0 0 1px white inset,
-    0 0.85rem 2.2rem oklch(0.2 0.03 230 / 0.07);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
 }
 
 .connectionIcon {
@@ -186,7 +184,7 @@
 }
 
 .incidentHeader {
-  padding-bottom: 2.5rem;
+  padding-bottom: 1.7rem;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -202,13 +200,14 @@
   letter-spacing: -0.005em;
 }
 
+/* Page context, deliberately quieter than the live instruction below it. */
 .incidentHeader h1 {
-  max-width: 11ch;
-  margin: 0.35rem 0 0.85rem;
-  font-size: clamp(2.85rem, 10vw, 4rem);
-  font-weight: 570;
-  letter-spacing: -0.062em;
-  line-height: 0.96;
+  max-width: 18ch;
+  margin: 0.3rem 0 0.7rem;
+  font-size: clamp(1.5rem, 5vw, 1.85rem);
+  font-weight: 620;
+  letter-spacing: -0.032em;
+  line-height: 1.1;
   text-wrap: balance;
 }
 
@@ -224,11 +223,12 @@
   padding: 3rem 0 0 4.5rem;
 }
 
+/* The one thing the guest must read. */
 .instruction h2 {
   max-width: 14ch;
-  margin: 0.38rem 0 0.65rem;
-  font-size: clamp(1.72rem, 6.5vw, 2.4rem);
-  font-weight: 630;
+  margin: 0.38rem 0 0.7rem;
+  font-size: clamp(2.15rem, 8vw, 3rem);
+  font-weight: 620;
   letter-spacing: -0.047em;
   line-height: 1.05;
   text-wrap: balance;
@@ -506,33 +506,33 @@
 }
 
 .resolvedOutcome {
-  border-color: oklch(0.7 0.11 150);
+  border-color: var(--color-success);
   background: var(--color-success-soft);
 }
 
 .resolvedOutcome > span {
   background: var(--color-success);
-  color: white;
+  color: var(--color-bg);
 }
 
 .failedOutcome {
-  border-color: oklch(0.72 0.13 28);
+  border-color: var(--color-danger);
   background: var(--color-danger-soft);
 }
 
 .failedOutcome > span {
   background: var(--color-danger);
-  color: white;
+  color: var(--color-bg);
 }
 
 .incompleteOutcome {
-  border-color: oklch(0.74 0.12 78);
+  border-color: var(--color-warning);
   background: var(--color-warning-soft);
 }
 
 .incompleteOutcome > span {
   background: var(--color-warning);
-  color: white;
+  color: var(--color-bg);
 }
 
 .retryButton {
@@ -800,4 +800,20 @@
   .outcome {
     padding: 1rem;
   }
+}
+
+/*
+ * Status labels inherit their outcome hue. The shared primary blue reads as a
+ * clash against the success and danger fills on dark surfaces.
+ */
+.resolvedOutcome > div > p:first-child {
+  color: var(--color-success);
+}
+
+.failedOutcome > div > p:first-child {
+  color: var(--color-danger);
+}
+
+.incompleteOutcome > div > p:first-child {
+  color: var(--color-warning);
 }

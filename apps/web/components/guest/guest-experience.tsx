@@ -319,7 +319,7 @@ export function GuestExperience({
   const fixtureName = (initialFixture ?? "connected") as GuestFixtureName;
 
   return (
-    <main className={styles.guestShell}>
+    <main className={`${styles.guestShell} guest-theme`}>
       <nav className={styles.guestNav} aria-label="Guest navigation">
         <Link href="/" className={styles.guestBrand} aria-label="Steward home">
           <span className={styles.guestBrandMark} aria-hidden="true">
