@@ -1,20 +1,22 @@
-import { defineAgent, type JobContext, voice } from "@livekit/agents";
+import { defineAgent, type JobContext, llm, voice } from "@livekit/agents";
 import * as deepgram from "@livekit/agents-plugin-deepgram";
 import * as openai from "@livekit/agents-plugin-openai";
 import { RoomEvent } from "@livekit/rtc-node";
-import { loadAgentRuntimeConfig } from "@steward/config";
+import { loadAgentRuntimeConfig, loadDatabaseConfig } from "@steward/config";
 import { randomUUID } from "node:crypto";
 
 import {
   ContractEventPublisher,
   LiveKitEventTransport,
 } from "./events.js";
+import { AgentIncidentPersistence } from "./incident-persistence.js";
 import { VoiceLatencyCollector } from "./latency.js";
 import { INTERRUPTIBLE_GREETING } from "./prompt.js";
 import { wireSessionEvents } from "./session-events.js";
 import { HumanSpeechController } from "./speech-controller.js";
 import { StewardAgent } from "./steward-agent.js";
 import { VoiceTurnTracer, type VoiceChannel } from "./turn-tracing.js";
+import { LiveKitVisionFrameSource } from "./video-frame-source.js";
 import { VisionCoordinator } from "./vision.js";
 
 interface RoomMetadata {
@@ -74,8 +76,23 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
     `incident-${ctx.job.id}`;
   const channel = channelForRoom(metadata, roomName);
   const correlationId = randomUUID();
+  const databaseConfig = loadDatabaseConfig();
+  const persistence = new AgentIncidentPersistence({
+    url: databaseConfig.NEXT_PUBLIC_SUPABASE_URL,
+    secretKey: databaseConfig.SUPABASE_SECRET_KEY,
+  });
+  await persistence.ensureIncident({
+    incidentId,
+    participantIdentity: participant.identity,
+    ...(metadata.incidentGoal === undefined ? {} : { incidentGoal: metadata.incidentGoal }),
+    guestExpiryDays: config.GUEST_LINK_EXPIRY_DAYS,
+  });
   const transport = new LiveKitEventTransport(ctx.room);
-  const events = new ContractEventPublisher(incidentId, transport);
+  const events = new ContractEventPublisher(
+    incidentId,
+    transport,
+    (event) => persistence.persist(event),
+  );
   const latency = new VoiceLatencyCollector(incidentId);
   const tracer = new VoiceTurnTracer({
     incidentId,
@@ -85,20 +102,58 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
     config,
   });
   const speech = new HumanSpeechController();
+  const frameSource = new LiveKitVisionFrameSource(ctx.room, participant);
   let session!: voice.AgentSession<{
     incidentId: string;
     channel: VoiceChannel;
     speech: HumanSpeechController;
     vision: VisionCoordinator;
   }>;
-  const vision = new VisionCoordinator(events, async (response) => {
-    const instructions =
-      response.status === "accepted"
-        ? "The guest accepted the visual evidence request. Acknowledge briefly, but do not claim you can see anything until an actual frame is available."
-        : response.status === "declined"
-          ? "The guest declined camera access. Accept that without pressure and continue with the best voice-only diagnostic question."
-          : "Camera access failed. Explain that briefly and continue with voice-only troubleshooting.";
-    session.generateReply({ instructions, allowInterruptions: true });
+  const vision = new VisionCoordinator(events, async (response, request) => {
+    if (response.status !== "accepted") {
+      const instructions = response.status === "declined"
+        ? "The guest declined camera access. Accept that without pressure and continue with the best voice-only diagnostic question."
+        : "Camera access failed. Explain that briefly and continue with voice-only troubleshooting.";
+      session.generateReply({ instructions, allowInterruptions: true });
+      return;
+    }
+
+    const frame = await frameSource.captureFrame();
+    if (frame === null) {
+      session.generateReply({
+        instructions: "The guest accepted camera access, but no usable frame arrived. State that plainly and continue with voice-only troubleshooting.",
+        allowInterruptions: true,
+      });
+      return;
+    }
+
+    const evidenceRef = `vision-frame:${request.id}`;
+    await events.incident({
+      version: 1,
+      type: "evidence.recorded",
+      incidentId,
+      eventId: randomUUID(),
+      occurredAt: new Date().toISOString(),
+      actor: { kind: "system", component: "agent" },
+      payload: {
+        evidenceRef,
+        kind: "video-frame",
+        summary: "A current consented camera frame was supplied for one diagnostic inference; the raw frame was not stored.",
+      },
+    });
+    const userMessage = new llm.ChatMessage({
+      role: "user",
+      content: [
+        `Inspect only this current camera frame to answer the open diagnostic question: ${request.question} Describe what is actually visible. If it is unrelated, dark, blurry, blocked, or contradictory, say which uncertainty applies. Do not infer an object, defect, or outcome that the frame does not support.`,
+        llm.createImageContent({ image: frame, inferenceDetail: "high" }),
+      ],
+      extra: { visionRequestId: request.id, evidenceRef },
+    });
+    session.generateReply({
+      userInput: userMessage,
+      instructions: "Use the same reasoning model for this visual turn. Give one concise observation and one useful next question. Never claim the incident is resolved from a single frame.",
+      allowInterruptions: true,
+    });
   });
 
   session = new voice.AgentSession({
@@ -168,6 +223,7 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
   });
 
   ctx.addShutdownCallback(async () => {
+    frameSource.dispose();
     await events.voice({
       version: 1,
       incidentId,

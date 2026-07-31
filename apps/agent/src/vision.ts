@@ -22,7 +22,10 @@ export class VisionCoordinator {
 
   constructor(
     private readonly events: ContractEventPublisher,
-    private readonly onResponse?: (response: VisionResponse) => Promise<void>,
+    private readonly onResponse?: (
+      response: VisionResponse,
+      request: VisionRequest,
+    ) => Promise<void>,
   ) {}
 
   async request(input: {
@@ -103,7 +106,8 @@ export class VisionCoordinator {
     if (topic !== VISION_RESPONSE_TOPIC) return false;
 
     const response = parseVisionResponse(payload);
-    if (!this.#pending.has(response.requestId)) {
+    const request = this.#pending.get(response.requestId);
+    if (request === undefined) {
       throw new Error("Vision response does not match an active request");
     }
     this.#pending.delete(response.requestId);
@@ -120,7 +124,7 @@ export class VisionCoordinator {
         status: response.status,
       },
     });
-    await this.onResponse?.(response);
+    await this.onResponse?.(response, request);
     return true;
   }
 }

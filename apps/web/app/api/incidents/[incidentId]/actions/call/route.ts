@@ -29,6 +29,7 @@ export async function POST(request: Request, context: { params: Promise<{ incide
       idempotencyKey: input.idempotencyKey,
       vendorId: vendor.id,
       vendorName: vendor.name,
+      incidentGoal: incident.goal,
       contact,
     });
     if (result.status === "success" && result.data !== undefined) {

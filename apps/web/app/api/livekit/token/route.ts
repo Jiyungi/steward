@@ -7,6 +7,7 @@ import { z } from "zod";
 import { getServerConfig } from "../../../../lib/server/config";
 import { getIncidentStore } from "../../../../lib/server/database";
 import { apiError, parseJson, PublicRequestError } from "../../../../lib/server/http";
+import { ensureAgentDispatch } from "../../../../lib/server/livekit-dispatch";
 
 const requestSchema = z
   .object({
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
       identity: participantIdentity,
       name: "Guest",
       ttl: 600,
-      metadata: JSON.stringify({ incidentId: incident.id, guestSessionId: input.guestSessionId, channel: "browser" }),
+      metadata: JSON.stringify({ incidentId: incident.id, guestSessionId: input.guestSessionId, channel: "web" }),
     });
     accessToken.addGrant({
       room: roomName,
@@ -38,10 +39,20 @@ export async function POST(request: Request) {
       canSubscribe: true,
       canPublishData: true,
     });
+    const dispatchId = await ensureAgentDispatch({
+      roomName,
+      metadata: {
+        incidentId: incident.id,
+        incidentGoal: incident.goal,
+        guestSessionId: input.guestSessionId,
+        channel: "web",
+      },
+    });
     return NextResponse.json({
       serverUrl: config.LIVEKIT_URL,
       roomName,
       participantIdentity,
+      dispatchId,
       token: await accessToken.toJwt(),
       expiresAt: new Date(Date.now() + 600_000).toISOString(),
     });

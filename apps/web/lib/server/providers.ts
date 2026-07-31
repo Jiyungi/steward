@@ -41,6 +41,7 @@ export function getProviders() {
         livekitUrl: config.LIVEKIT_URL,
         apiKey: config.LIVEKIT_API_KEY,
         apiSecret: config.LIVEKIT_API_SECRET,
+        agentName: config.LIVEKIT_AGENT_NAME,
       }),
       auditor,
     ),

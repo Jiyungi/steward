@@ -155,13 +155,16 @@ describe("vendor ordering and telephony", () => {
 
   it("treats SIP answer as answered, never as a quote or booking", async () => {
     const { auditor } = await setup();
+    const dispatchAgent = vi.fn<LiveKitSipTransport["dispatchAgent"]>().mockResolvedValue({
+      dispatchId: "dispatch-1",
+    });
     const createSipParticipant = vi.fn<LiveKitSipTransport["createSipParticipant"]>().mockResolvedValue({
       participantId: "call-1",
       participantIdentity: "vendor-1-call",
     });
     const provider = new LiveKitTelephonyProvider(
       { outboundTrunkId: "ST_test" },
-      { createSipParticipant },
+      { dispatchAgent, createSipParticipant },
       auditor,
     );
     const result = await provider.createOutboundVendorCall({
@@ -175,16 +178,22 @@ describe("vendor ordering and telephony", () => {
     expect(result.status).toBe("success");
     expect(result.data?.sipAnswered).toBe(true);
     expect(result.data?.quoteStatus).toBe("not-collected");
+    expect(result.data?.dispatchId).toBe("dispatch-1");
+    expect(dispatchAgent).toHaveBeenCalledWith(expect.objectContaining({
+      incidentId: validIncidentSnapshot.id,
+      vendorId: "vendor-1",
+    }));
     expect(createSipParticipant).toHaveBeenCalledWith(expect.objectContaining({ waitUntilAnswered: true }));
     expect(JSON.stringify(result)).not.toMatch(/booked|accepted quote/i);
   });
 
   it("blocks an unverified call before creating a SIP participant", async () => {
     const { auditor } = await setup();
+    const dispatchAgent = vi.fn<LiveKitSipTransport["dispatchAgent"]>();
     const createSipParticipant = vi.fn<LiveKitSipTransport["createSipParticipant"]>();
     const provider = new LiveKitTelephonyProvider(
       { outboundTrunkId: "ST_test" },
-      { createSipParticipant },
+      { dispatchAgent, createSipParticipant },
       auditor,
     );
     const result = await provider.createOutboundVendorCall({
@@ -196,6 +205,7 @@ describe("vendor ordering and telephony", () => {
       contact: unverifiedContact,
     });
     expect(result.error?.code).toBe("CONTACT_NOT_VERIFIED");
+    expect(dispatchAgent).not.toHaveBeenCalled();
     expect(createSipParticipant).not.toHaveBeenCalled();
   });
 });

@@ -21,6 +21,7 @@
     "@langfuse/openai": "5.10.0",
     "@steward/config": "workspace:*",
     "@steward/contracts": "workspace:*",
+    "@steward/db": "workspace:*",
     "@steward/observability": "workspace:*",
     "dotenv": "17.4.2",
     "openai": "7.3.0"

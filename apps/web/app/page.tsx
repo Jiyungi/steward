@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+// INTEGRATION HANDOFF: this is only a Person 1 runtime placeholder.
+// Person 2 owns `/` and must replace this entire file with the 3D landing page.
 export default function HomePage() {
   return (
     <main className="home-shell">
