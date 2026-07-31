@@ -158,7 +158,7 @@ Official reference: [Langfuse API key environment variables](https://langfuse.co
 
 ```dotenv
 LANGFUSE_BASE_URL=https://us.cloud.langfuse.com
-LANGFUSE_ENVIRONMENT=development
+LANGFUSE_TRACING_ENVIRONMENT=development
 ```
 
 Use Langfuse for LLM decisions, tool calls, prompts, errors, cost, and incident-level traces. Use LiveKit observability for calls, rooms, audio, transcripts, and media latency.

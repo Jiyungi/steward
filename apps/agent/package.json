@@ -1,0 +1,19 @@
+{
+  "name": "@steward/agent",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "start:smoke": "node dist/index.js"
+  },
+  "dependencies": {
+    "@langfuse/openai": "5.10.0",
+    "@steward/config": "workspace:*",
+    "@steward/observability": "workspace:*",
+    "dotenv": "17.4.2",
+    "openai": "7.3.0"
+  }
+}
