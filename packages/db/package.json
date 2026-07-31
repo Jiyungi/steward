@@ -1,5 +1,5 @@
 {
-  "name": "@steward/config",
+  "name": "@steward/db",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -9,6 +9,10 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./dist/index.js"
+    },
+    "./testing": {
+      "types": "./src/testing/index.ts",
+      "default": "./dist/testing/index.js"
     }
   },
   "scripts": {
@@ -17,6 +21,8 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@steward/contracts": "workspace:*",
+    "@supabase/supabase-js": "2.111.0",
     "zod": "4.4.3"
   }
 }
