@@ -1,0 +1,23 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Local agent tooling
+/skills/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+
+# JavaScript
+node_modules/
+dist/
+coverage/
+
+# Logs and operating-system files
+*.log
+.DS_Store
+Thumbs.db
