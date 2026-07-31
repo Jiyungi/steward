@@ -264,7 +264,7 @@
   z-index: 1;
   width: 0.7rem;
   height: 0.7rem;
-  border: 0.17rem solid white;
+  border: 0.17rem solid var(--color-bg);
   border-radius: 50%;
   background: var(--color-primary);
   box-shadow:
@@ -372,7 +372,7 @@
   border-radius: 0.65rem;
   background: var(--color-primary-strong);
   box-shadow: 0 0.55rem 1.4rem oklch(0.4 0.12 230 / 0.12);
-  color: white;
+  color: var(--color-bg);
   cursor: pointer;
   font-weight: 720;
 }
@@ -602,7 +602,12 @@
   padding: 0.72rem 0.9rem;
   border: 1px solid var(--color-border);
   border-radius: 0.65rem;
-  background: white;
+  background: var(--color-surface-strong);
+  color: var(--color-ink);
+}
+
+.accessForm input::placeholder {
+  color: var(--color-muted);
 }
 
 .accessForm input:focus {
