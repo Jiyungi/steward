@@ -73,6 +73,7 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
   const participant = await ctx.waitForParticipant();
   const metadata = {
     ...readRoomMetadata(ctx.room.metadata),
+    ...readRoomMetadata(ctx.job.metadata),
     ...readRoomMetadata(participant.metadata),
   };
   const roomName = ctx.room.name ?? "";
