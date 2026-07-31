@@ -5,11 +5,10 @@ export default function VendorDemoPage() {
     <main className="operate-shell narrow-operate">
       <header className="operate-header">
         <div>
-          <p className="context-line">Vendor handoff</p>
-          <h1>Say exactly<br />what you can do.</h1>
-          <p>A live quote keeps unknown fields unknown. Nothing is accepted or paid just because a call was answered.</p>
+          <h1>Quote the job</h1>
+          <p>Record what you can provide.</p>
         </div>
-        <span className="status-chip">Controlled demo</span>
+        <span className="status-chip">Demo</span>
       </header>
       <VendorConsole />
     </main>

@@ -1,10 +1,7 @@
 .guestShell {
   min-height: 100svh;
-  background:
-    linear-gradient(90deg, oklch(0.48 0.105 35 / 0.035) 1px, transparent 1px),
-    linear-gradient(oklch(0.48 0.105 35 / 0.035) 1px, transparent 1px),
-    linear-gradient(180deg, var(--color-surface) 0, var(--color-bg) 17rem);
-  background-size: 5rem 5rem, 5rem 5rem, auto;
+  --logo-knob: var(--color-signal);
+  background: var(--color-bg);
   color: var(--color-ink);
 }
 
@@ -33,33 +30,9 @@
 }
 
 .guestBrandMark {
-  position: relative;
-  display: grid;
-  width: 1.75rem;
-  height: 1.75rem;
-  place-items: center;
-}
-
-.guestBrandMark i {
-  position: absolute;
-  width: 0.4rem;
-  height: 0.4rem;
-  border-radius: 50%;
-  background: var(--color-primary);
-}
-
-.guestBrandMark i:first-child {
-  transform: translate(-0.52rem, 0.36rem);
-}
-
-.guestBrandMark i:nth-child(2) {
-  width: 0.52rem;
-  height: 0.52rem;
-}
-
-.guestBrandMark i:last-child {
-  background: var(--color-signal);
-  transform: translate(0.52rem, -0.36rem);
+  width: 2rem;
+  height: 2rem;
+  color: var(--color-primary-strong);
 }
 
 .sessionLabel {
@@ -180,7 +153,7 @@
 
 .conversation {
   position: relative;
-  padding-top: 3.5rem;
+  padding-top: 2.2rem;
 }
 
 .incidentHeader {
@@ -220,13 +193,13 @@
 .instruction {
   position: relative;
   margin-top: 0;
-  padding: 3rem 0 0 4.5rem;
+  padding: 2rem 0 0 4.5rem;
 }
 
 /* The one thing the guest must read. */
-.instruction h2 {
+.instruction h1 {
   max-width: 14ch;
-  margin: 0.38rem 0 0.7rem;
+  margin: 0 0 0.7rem;
   font-size: clamp(2.15rem, 8vw, 3rem);
   font-weight: 620;
   letter-spacing: -0.047em;
@@ -243,7 +216,7 @@
 
 .voicePresence {
   position: absolute;
-  top: 2.85rem;
+  top: 1.82rem;
   left: 0;
   display: grid;
   width: 3.2rem;
@@ -297,7 +270,7 @@
 .cameraSection {
   margin-top: 3rem;
   padding: 0.35rem 0 0.35rem 1.4rem;
-  border-left: 2px solid var(--color-signal);
+  border-left: 1px solid var(--color-signal);
 }
 
 .inlineHeading {
@@ -468,7 +441,6 @@
   margin-top: 3rem;
   padding: 1.4rem;
   border: 1px solid var(--color-border);
-  border-left-width: 3px;
   border-radius: 0.9rem;
   align-items: flex-start;
   gap: 1rem;

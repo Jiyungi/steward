@@ -1,210 +1,60 @@
 import styles from "./scene.module.css";
 
-interface Block {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-const GROUND = 622;
-
-/** Elevation of the same massing the 3D scene renders. */
-const BLOCKS: Block[] = [
-  { x: 108, y: 386, width: 116, height: GROUND - 386 },
-  { x: 234, y: 506, width: 132, height: GROUND - 506 },
-  { x: 330, y: 320, width: 186, height: GROUND - 320 },
-  { x: 530, y: 190, width: 150, height: GROUND - 190 },
-  { x: 694, y: 450, width: 206, height: GROUND - 450 },
-  { x: 914, y: 414, width: 120, height: GROUND - 414 },
-];
-
-/** The block whose window carries the incident. */
-const HERO = BLOCKS[2] as Block;
-const HERO_WINDOW = { x: HERO.x + 96, y: HERO.y + 104, width: 22, height: 30 };
-const NODE = { x: 604, y: 122 };
-const VENDOR = { x: 1096, y: 600 };
-
-function seeded(seed: number): () => number {
-  let value = seed;
-  return () => {
-    value = (value * 1664525 + 1013904223) % 4294967296;
-    return value / 4294967296;
-  };
-}
-
-/** Deterministic so server and client markup agree and baselines stay stable. */
-function buildWindows() {
-  const random = seeded(20260731);
-  const cells: { key: string; x: number; y: number; tone: string }[] = [];
-
-  BLOCKS.forEach((block, blockIndex) => {
-    const columns = Math.max(2, Math.round(block.width / 44));
-    const rows = Math.max(2, Math.round(block.height / 48));
-    const cellWidth = block.width / columns;
-    const cellHeight = block.height / rows;
-
-    for (let row = 0; row < rows; row += 1) {
-      for (let column = 0; column < columns; column += 1) {
-        const draw = random();
-        const tone =
-          draw < 0.52 ? "dark" : draw < 0.84 ? "dim" : draw < 0.95 ? "cool" : "warm";
-
-        cells.push({
-          key: `${blockIndex}-${row}-${column}`,
-          x: block.x + column * cellWidth + (cellWidth - 22) / 2,
-          y: block.y + row * cellHeight + (cellHeight - 30) / 2,
-          tone,
-        });
-      }
-    }
-  });
-
-  return cells;
-}
-
-const WINDOWS = buildWindows();
-
 export function SceneFallback({ activeStage }: { activeStage: number }) {
+  void activeStage;
+
   return (
-    <figure className={styles.fallback} data-testid="scene-fallback" data-active-stage={activeStage}>
+    <figure className={styles.fallback} data-testid="scene-fallback">
       <svg
         className={styles.staticComposition}
-        viewBox="0 0 1200 760"
+        viewBox="0 0 900 700"
         role="img"
         aria-labelledby="static-scene-title static-scene-description"
       >
-        <title id="static-scene-title">Steward property coordination system</title>
+        <title id="static-scene-title">A sunlit Steward property</title>
         <desc id="static-scene-description">
-          A property at night with one lit window carrying a guest incident, a signal path to
-          Steward, an action reaching a vendor, and verified evidence returning to the guest.
+          A modern rental home, trees, a walkway, and a service van arriving at the front door.
         </desc>
-        <defs>
-          <filter id="soft-blue-glow" x="-150%" y="-150%" width="400%" height="400%">
-            <feGaussianBlur stdDeviation="14" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-          <filter id="soft-amber-glow" x="-150%" y="-150%" width="400%" height="400%">
-            <feGaussianBlur stdDeviation="11" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-          <linearGradient id="ground-fade" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#3a211b" stopOpacity="0.55" />
-            <stop offset="100%" stopColor="#0b0807" stopOpacity="0" />
-          </linearGradient>
-        </defs>
 
-        <g className={styles.lattice} aria-hidden="true">
-          <path d="M60 622h1080M150 664h900M250 706h700" />
-        </g>
-        <rect
-          x="60"
-          y={GROUND}
-          width="1080"
-          height="120"
-          fill="url(#ground-fade)"
-          aria-hidden="true"
-        />
+        <path className={styles.staticGround} d="M90 496 470 300l344 168-381 204Z" />
+        <path className={styles.staticDrive} d="m437 580 266-136 82 40-270 140Z" />
 
-        <g className={styles.massing} aria-hidden="true">
-          {BLOCKS.map((block) => (
-            <rect
-              key={`${block.x}-${block.y}`}
-              x={block.x}
-              y={block.y}
-              width={block.width}
-              height={block.height}
-              rx="3"
-            />
-          ))}
+        <g className={styles.staticNeighbor} aria-hidden="true">
+          <path d="M107 313 251 240l105 52-144 75Z" />
+          <path d="M107 313v190l105 52V367Z" />
+          <path d="m212 367 144-75v190l-144 73Z" />
         </g>
 
-        <g aria-hidden="true">
-          {WINDOWS.map((cell) => (
-            <rect
-              className={styles[`window${cell.tone}` as keyof typeof styles]}
-              height="30"
-              key={cell.key}
-              rx="1.5"
-              width="22"
-              x={cell.x}
-              y={cell.y}
-            />
-          ))}
+        <g className={styles.staticHome} aria-hidden="true">
+          <path className={styles.staticRoof} d="m290 280 282-143 197 97-286 146Z" />
+          <path className={styles.staticFront} d="M290 280v230l193 95V380Z" />
+          <path className={styles.staticSide} d="m483 380 286-146v230L483 605Z" />
+          <path className={styles.staticAccent} d="m290 280 77-39v230l-77 39Z" />
+          <path className={styles.staticDoor} d="m397 457 49 24v83l-49-24Z" />
+          <g className={styles.staticWindows}>
+            <path d="m514 374 66-34v55l-66 33Z" />
+            <path d="m604 328 66-34v55l-66 33Z" />
+            <path d="m694 282 46-23v55l-46 23Z" />
+            <path d="m524 467 136-69v52l-136 68Z" />
+          </g>
         </g>
 
-        <g className={`${styles.staticPath} ${styles.staticPathSignal}`} aria-hidden="true">
-          <path d={`M${HERO_WINDOW.x + 11} ${HERO_WINDOW.y} C 470 330 540 250 ${NODE.x} ${NODE.y + 46}`} />
-        </g>
-        <g className={`${styles.staticPath} ${styles.staticPathAction}`} aria-hidden="true">
-          <path d={`M${NODE.x + 46} ${NODE.y + 14} C 820 170 1060 340 ${VENDOR.x} ${VENDOR.y - 24}`} />
-        </g>
-        <g className={`${styles.staticPath} ${styles.staticPathEvidence}`} aria-hidden="true">
-          <path
-            d={`M${VENDOR.x - 28} ${VENDOR.y + 6} C 900 712 560 712 ${HERO_WINDOW.x + 22} ${HERO_WINDOW.y + 26}`}
-          />
+        <g className={styles.staticTrees} aria-hidden="true">
+          <path d="M214 530v-92M736 509v-82" />
+          <path d="M164 429c18-63 91-59 105-6 52 18 31 83-17 76-22 42-88 18-74-23-31-7-37-39-14-47ZM691 418c17-53 78-50 91-5 43 16 26 69-15 64-18 34-73 15-61-19-27-6-31-33-15-40Z" />
         </g>
 
-        {/* The incident window stays warm until evidence closes it. */}
-        <g
-          className={`${styles.staticNode} ${activeStage === 3 ? styles.staticVerified : styles.staticSignal}`}
-          aria-hidden="true"
-        >
-          <circle
-            className={styles.voiceRing}
-            cx={HERO_WINDOW.x + 11}
-            cy={HERO_WINDOW.y + 15}
-            r="42"
-          />
-          <circle
-            className={styles.voiceRing}
-            cx={HERO_WINDOW.x + 11}
-            cy={HERO_WINDOW.y + 15}
-            r="72"
-          />
-          <rect
-            filter="url(#soft-amber-glow)"
-            height={HERO_WINDOW.height}
-            rx="2"
-            width={HERO_WINDOW.width}
-            x={HERO_WINDOW.x}
-            y={HERO_WINDOW.y}
-          />
-        </g>
-
-        <g className={`${styles.staticNode} ${styles.staticSteward}`} aria-hidden="true">
-          <circle cx={NODE.x} cy={NODE.y} r="46" />
-          <path d={`M${NODE.x - 32} ${NODE.y} a32 32 0 0 1 44 -30`} />
-          <circle
-            className={styles.nodeCore}
-            cx={NODE.x}
-            cy={NODE.y}
-            filter="url(#soft-blue-glow)"
-            r="7"
-          />
-        </g>
-
-        <g className={`${styles.staticNode} ${styles.staticAction}`} aria-hidden="true">
-          <rect height="26" rx="3" width="66" x={VENDOR.x - 33} y={VENDOR.y} />
-          <ellipse cx={VENDOR.x} cy={VENDOR.y} rx="26" ry="8" />
-          <circle
-            className={styles.nodeCore}
-            cx={VENDOR.x}
-            cy={VENDOR.y - 16}
-            filter="url(#soft-blue-glow)"
-            r="6"
-          />
+        <g className={styles.staticVan} aria-hidden="true">
+          <path d="m596 547 105-53 76 37-106 54Z" />
+          <path d="m596 547v45l75 37v-44Z" />
+          <path d="m671 585 106-54v44l-106 54Z" />
+          <path d="m706 529 33-16 26 13-34 17Z" />
+          <ellipse cx="626" cy="602" rx="12" ry="16" />
+          <ellipse cx="735" cy="601" rx="12" ry="16" />
         </g>
       </svg>
       <figcaption className="sr-only">
-        A property at night. One lit window carries a guest incident to Steward, which routes the
-        action to a vendor and returns verified evidence to the guest.
+        Steward connects a guest at a property with the help needed to resolve their issue.
       </figcaption>
     </figure>
   );

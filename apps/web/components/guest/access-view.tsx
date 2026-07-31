@@ -26,9 +26,8 @@ export function AccessView({ state, onContinue }: AccessViewProps) {
   if (state === "validating") {
     return (
       <section className={styles.accessPanel} aria-labelledby="access-title" aria-live="polite">
-        <p className={styles.contextLabel}>Temporary guest access</p>
         <h1 id="access-title">Checking your guest link</h1>
-        <p>Steward is confirming the link’s booking scope and access window.</p>
+        <p>One moment.</p>
         <div className={styles.accessSkeleton} aria-label="Guest link validation in progress">
           <span />
           <span />
@@ -44,16 +43,15 @@ export function AccessView({ state, onContinue }: AccessViewProps) {
         <span className={`${styles.accessSymbol} ${styles.dangerSymbol}`} aria-hidden="true">
           !
         </span>
-        <p className={styles.contextLabel}>Temporary guest access</p>
         <h1 id="access-title">This link is {expired ? "expired" : "no longer active"}</h1>
         <p>
           {expired
-            ? "The booking access window has ended, so this link cannot reveal incident details."
-            : "The property team revoked this link, so it can no longer open the guest incident."}
+            ? "The booking access window has ended."
+            : "The property team turned this link off."}
         </p>
         <div className={styles.safetyNote}>
-          <strong>Your information remains protected.</strong>
-          <span>Contact the property using the number in your booking confirmation for a new path.</span>
+          <strong>Need help?</strong>
+          <span>Use the property number in your booking confirmation.</span>
         </div>
       </section>
     );
@@ -62,23 +60,18 @@ export function AccessView({ state, onContinue }: AccessViewProps) {
   const demo = state === "demo-entry";
   return (
     <section className={styles.accessPanel} aria-labelledby="access-title">
-      <p className={styles.contextLabel}>{demo ? "Demo guest entry" : "Email verification required"}</p>
       <h1 id="access-title">{demo ? "Try Steward as a guest" : "Confirm it’s you"}</h1>
       <p>
         {demo
-          ? "Use an email to enter a seeded, temporary demo stay. No permanent Guest account is created."
-          : "Use the email associated with this booking before Steward shows property-specific details."}
+          ? "Enter any email to open the demo stay."
+          : "Use the email from your booking."}
       </p>
       <form className={styles.accessForm} onSubmit={handleSubmit}>
         <label htmlFor="guest-email">Booking email</label>
         <input id="guest-email" name="email" type="email" autoComplete="email" required />
         <button type="submit">{demo ? "Enter demo stay" : "Send verification link"}</button>
       </form>
-      <p className={styles.privacyLine}>
-        {demo
-          ? "Fixture mode uses no live booking or provider services."
-          : "The link remains limited to this booking and its active incident."}
-      </p>
+      {!demo ? <p className={styles.privacyLine}>This link is limited to your stay.</p> : null}
     </section>
   );
 }

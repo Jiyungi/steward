@@ -71,7 +71,7 @@ export function VendorConsole() {
           guarantee: guarantee.trim() === "" ? null : guarantee,
         }),
       });
-      setNotice({ error: false, text: "Live quote recorded with missing fields preserved. The owner can now review and pay within budget." });
+      setNotice({ error: false, text: "Quote recorded." });
       await refresh();
     } catch (error) {
       setNotice({ error: true, text: error instanceof Error ? error.message : "Quote could not be recorded." });
@@ -91,7 +91,7 @@ export function VendorConsole() {
 
       <section className="section-block">
         <h2>Record the live quote</h2>
-        <p>Enter only what the vendor actually said. Leave missing answers blank; Steward will show them as unresolved.</p>
+        <p>Leave anything you did not confirm blank.</p>
         <div className="field-stack">
           <div className="two-fields">
             <label>Availability<select value={availability} onChange={(event) => setAvailability(event.target.value as typeof availability)}><option value="available">Available</option><option value="unavailable">Unavailable</option><option value="unknown">Unknown</option></select></label>

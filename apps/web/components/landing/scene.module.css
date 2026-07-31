@@ -5,23 +5,6 @@
   inset: 0;
 }
 
-.shell::before {
-  position: absolute;
-  top: 0;
-  right: -10%;
-  bottom: 0;
-  left: 20%;
-  z-index: 0;
-  background-image:
-    linear-gradient(oklch(0.68 0.09 38 / 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, oklch(0.68 0.09 38 / 0.045) 1px, transparent 1px);
-  background-position: center;
-  background-size: 5rem 5rem;
-  content: "";
-  mask-image: radial-gradient(ellipse at 65% 48%, black 8%, transparent 69%);
-  pointer-events: none;
-}
-
 .fallback {
   z-index: 1;
   margin: 0;
@@ -35,7 +18,7 @@
 .canvasWrap {
   z-index: 2;
   opacity: 0;
-  animation: scene-in var(--motion-spatial) ease forwards;
+  animation: scene-in var(--motion-spatial) cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .canvasWrap canvas {
@@ -49,204 +32,90 @@
 
 .staticComposition {
   position: absolute;
-  top: 50%;
-  left: 61%;
-  width: min(84vw, 76rem);
+  top: 51%;
+  left: 52%;
+  width: min(78vw, 61rem);
   height: auto;
   overflow: visible;
-  filter: drop-shadow(0 3.5rem 5rem oklch(0.025 0.01 30 / 0.72));
-  transform: translate(-50%, -51%);
+  filter: drop-shadow(0 2.6rem 2.8rem rgb(63 79 67 / 18%));
+  transform: translate(-50%, -50%);
 }
 
-.lattice {
+.staticGround {
+  fill: #cbd6c5;
+}
+
+.staticDrive {
+  fill: #d7c4a8;
+}
+
+.staticNeighbor path:first-child {
+  fill: #ede6da;
+}
+
+.staticNeighbor path:nth-child(2) {
+  fill: #cdbfae;
+}
+
+.staticNeighbor path:last-child {
+  fill: #dacdbc;
+}
+
+.staticRoof {
+  fill: #fffdf7;
+}
+
+.staticFront {
+  fill: #e5ddcf;
+}
+
+.staticSide {
+  fill: #f4efe3;
+}
+
+.staticAccent {
+  fill: #284c3c;
+}
+
+.staticDoor {
+  fill: #cc7653;
+}
+
+.staticWindows path {
+  fill: #6f8b83;
+  stroke: #284c3c;
+  stroke-width: 5;
+  stroke-linejoin: round;
+}
+
+.staticTrees > path:first-child {
   fill: none;
-  opacity: 0.16;
-  stroke: #c56f52;
-  stroke-width: 1;
+  stroke: #7d624d;
+  stroke-width: 12;
 }
 
-.massing rect {
-  fill: #3a211b;
-  stroke: #6b3a2a;
-  stroke-width: 1;
+.staticTrees > path:last-child {
+  fill: #879783;
 }
 
-.windowdark {
-  fill: #1d1210;
+.staticVan path:first-child {
+  fill: #fffdf7;
 }
 
-.windowdim {
-  fill: #a94c35;
+.staticVan path:nth-child(2) {
+  fill: #ded8cb;
 }
 
-.windowcool {
-  fill: #f5b68e;
+.staticVan path:nth-child(3) {
+  fill: #284c3c;
 }
 
-.windowwarm {
-  fill: #c98b45;
+.staticVan path:nth-child(4) {
+  fill: #6f8b83;
 }
 
-.staticPath {
-  fill: none;
-  opacity: 0.1;
-  stroke-width: 2;
-}
-
-.staticPathSignal {
-  stroke: #ffab3d;
-}
-
-.staticPathAction {
-  stroke: #e66b45;
-}
-
-.staticPathEvidence {
-  stroke: #f7dfca;
-}
-
-.staticNode {
-  fill: none;
-  stroke-width: 2;
-}
-
-.staticSignal rect {
-  fill: #ffd9a0;
-}
-
-.staticVerified rect {
-  fill: #f7dfca;
-}
-
-.voiceRing {
-  fill: none;
-  opacity: 0.28;
-  stroke: #ffab3d;
-  stroke-width: 1.5;
-}
-
-.staticVerified .voiceRing {
-  stroke: #f7dfca;
-}
-
-.staticSteward {
-  stroke: #e66b45;
-}
-
-.staticSteward circle {
-  opacity: 0.5;
-}
-
-.staticSteward path {
-  opacity: 0.85;
-  stroke: #f7dfca;
-}
-
-.staticAction {
-  stroke: #e66b45;
-}
-
-.staticAction rect {
-  fill: #2a1713;
-}
-
-.staticAction ellipse {
-  opacity: 0.55;
-}
-
-.nodeCore {
-  fill: #f7dfca;
-  stroke: none;
-}
-
-.fallback[data-active-stage="0"] .staticSignal .voiceRing {
-  opacity: 0.62;
-}
-
-.fallback[data-active-stage="1"] .staticSteward,
-.fallback[data-active-stage="2"] .staticAction {
-  filter: drop-shadow(0 0 14px currentColor);
-  opacity: 1;
-}
-
-.fallback[data-active-stage="0"] .staticPathSignal,
-.fallback[data-active-stage="1"] .staticPathSignal,
-.fallback[data-active-stage="2"] .staticPathAction,
-.fallback[data-active-stage="3"] .staticPathEvidence {
-  opacity: 0.9;
-  stroke-width: 3;
-}
-
-.storyControl {
-  position: absolute;
-  right: max(2rem, calc((100vw - 92rem) / 2));
-  bottom: 4.1rem;
-  z-index: 12;
-  width: min(37rem, calc(100vw - 4rem));
-}
-
-.stageButtons {
-  display: grid;
-  border-top: 1px solid oklch(0.72 0.08 38 / 0.22);
-  grid-template-columns: repeat(4, 1fr);
-}
-
-.stageButton {
-  position: relative;
-  min-height: 4rem;
-  padding: 0.82rem 0.75rem 0.65rem;
-  border: 0;
-  background: transparent;
-  color: oklch(0.65 0.035 48);
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 590;
-  text-align: left;
-  transition: color var(--motion-quick) ease;
-}
-
-.stageButton::before {
-  position: absolute;
-  top: -1px;
-  right: 100%;
-  left: 0;
-  height: 2px;
-  background: var(--color-primary);
-  content: "";
-  transition: right var(--motion-standard) ease;
-}
-
-.stageButton[data-active="true"] {
-  color: var(--color-ink);
-}
-
-.stageButton[data-active="true"]::before {
-  right: 0;
-}
-
-.stageButton:hover {
-  color: var(--color-ink);
-}
-
-.stageNumber {
-  display: block;
-  margin-bottom: 0.2rem;
-  color: oklch(0.54 0.045 40);
-  font-family: var(--font-mono);
-  font-size: 0.64rem;
-  font-weight: 500;
-}
-
-.stageButton[data-active="true"] .stageNumber {
-  color: var(--color-primary);
-}
-
-.stageDetail {
-  min-height: 1.2rem;
-  margin: 0.15rem 0 0;
-  padding-left: 0.75rem;
-  color: oklch(0.65 0.035 48);
-  font-size: 0.76rem;
+.staticVan ellipse {
+  fill: #28302c;
 }
 
 @keyframes scene-in {
@@ -257,48 +126,15 @@
 
 @media (max-width: 66rem) {
   .staticComposition {
-    top: 33%;
-    left: 56%;
-    width: min(112vw, 66rem);
-  }
-
-  .storyControl {
-    right: 2rem;
-    bottom: 3.2rem;
+    top: 51%;
+    width: min(96vw, 57rem);
   }
 }
 
 @media (max-width: 38rem) {
-  .shell::before {
-    left: -20%;
-  }
-
   .staticComposition {
-    top: 26%;
-    left: 57%;
-    width: 49rem;
+    width: 42rem;
     max-width: none;
-  }
-
-  .storyControl {
-    right: 1rem;
-    bottom: 1.25rem;
-    width: calc(100% - 2rem);
-  }
-
-  .stageButton {
-    min-height: 3.7rem;
-    padding-inline: 0.28rem;
-    font-size: 0.76rem;
-  }
-
-  .stageNumber {
-    font-size: 0.58rem;
-  }
-
-  .stageDetail {
-    padding-left: 0.28rem;
-    font-size: 0.7rem;
   }
 }
 
@@ -306,9 +142,5 @@
   .canvasWrap {
     opacity: 1;
     animation: none;
-  }
-
-  .stageButton::before {
-    transition: none;
   }
 }

@@ -4,6 +4,7 @@ import { visionRequestSchema, type VisionRequest } from "@steward/contracts";
 import { Room, RoomEvent, Track, type RemoteTrack } from "livekit-client";
 import { useEffect, useRef, useState } from "react";
 
+import { StewardLogo } from "../../components/steward-logo";
 import { canStartCamera } from "../../lib/vision-consent";
 
 type SessionState = "idle" | "starting" | "connected" | "reconnecting" | "ended" | "failed";
@@ -20,7 +21,7 @@ export function VoiceConsole() {
   const [email, setEmail] = useState("");
   const [goal, setGoal] = useState("The front door lock is not opening.");
   const [state, setState] = useState<SessionState>("idle");
-  const [message, setMessage] = useState("Ready when you are. The microphone stays off until you start.");
+  const [message, setMessage] = useState("Microphone off");
   const [muted, setMuted] = useState(false);
   const [visionRequest, setVisionRequest] = useState<VisionRequest | null>(null);
   const [cameraOn, setCameraOn] = useState(false);
@@ -43,7 +44,7 @@ export function VoiceConsole() {
   async function startSession() {
     if (state === "starting" || state === "connected" || email.trim() === "" || goal.trim().length < 3) return;
     setState("starting");
-    setMessage("Creating a private incident room…");
+    setMessage("Connecting…");
     try {
       const guest = await readJson<{ session: { id: string } }>(await fetch("/api/guest/demo-session", {
         method: "POST",
@@ -65,16 +66,16 @@ export function VoiceConsole() {
       roomRef.current = room;
       room.on(RoomEvent.Reconnecting, () => {
         setState("reconnecting");
-        setMessage("The connection is recovering. Your incident is still active.");
+        setMessage("Reconnecting…");
       });
       room.on(RoomEvent.Reconnected, () => {
         setState("connected");
-        setMessage("Connected. Speak naturally and interrupt whenever you need to.");
+        setMessage("Connected");
       });
       room.on(RoomEvent.Disconnected, () => {
         setState("ended");
         setCameraOn(false);
-        setMessage("Session ended. The incident timeline remains available to the owner.");
+        setMessage("Call ended");
       });
       room.on(RoomEvent.TrackSubscribed, (track) => attachRemoteAudio(track));
       room.on(RoomEvent.DataReceived, (payload, _participant, _kind, topic) => {
@@ -84,7 +85,7 @@ export function VoiceConsole() {
             const parsed = visionRequestSchema.parse(JSON.parse(text));
             if (Date.parse(parsed.expiresAt) > Date.now() && parsed.status === "pending") setVisionRequest(parsed);
           } catch {
-            setMessage("Steward sent an invalid camera request. Camera access stayed off.");
+            setMessage("Camera request unavailable");
           }
         }
         if (topic === "steward.agent-status.v1") {
@@ -100,7 +101,7 @@ export function VoiceConsole() {
       await room.connect(credentials.serverUrl, credentials.token);
       await room.localParticipant.setMicrophoneEnabled(true);
       setState("connected");
-      setMessage("Connected. Tell Steward what happened.");
+      setMessage("Connected");
     } catch (error) {
       await roomRef.current?.disconnect();
       roomRef.current = null;
@@ -114,7 +115,7 @@ export function VoiceConsole() {
     const request = visionRequest;
     if (room === null || request === null || Date.parse(request.expiresAt) <= Date.now()) {
       setVisionRequest(null);
-      setMessage("That camera request expired. Camera access stayed off.");
+      setMessage("Camera request expired");
       return;
     }
     if (status === "accepted" && !canStartCamera(request, "accepted")) return;
@@ -124,15 +125,15 @@ export function VoiceConsole() {
         setCameraOn(true);
       } catch {
         status = "failed";
-        setMessage("Camera permission was not available. Steward will continue without it.");
+        setMessage("Camera unavailable. Voice is still connected.");
       }
     }
     await room.localParticipant.publishData(
       new TextEncoder().encode(JSON.stringify({ requestId: request.id, status })),
       { reliable: true, topic: "steward.vision-response.v1" },
     );
-    if (status === "declined") setMessage("Camera declined. Steward will continue with voice only.");
-    if (status === "accepted") setMessage("Camera is shared for this diagnostic step only.");
+    if (status === "declined") setMessage("Continuing with voice");
+    if (status === "accepted") setMessage("Camera shared for this step");
     setVisionRequest(null);
   }
 
@@ -154,19 +155,23 @@ export function VoiceConsole() {
   const active = state === "connected" || state === "reconnecting";
   return (
     <section className="voice-console" aria-labelledby="voice-title">
-      <div className="voice-orb" data-active={active} aria-hidden="true">S</div>
-      <p className="context-line">Browser diagnostic</p>
-      <h1 id="voice-title">Talk it through.</h1>
-      <p>Steward keeps one incident goal, can be interrupted, and asks for camera access only when seeing the issue would help.</p>
+      <StewardLogo className="voice-brand" markClassName="voice-brand-mark" />
+      <div className="voice-orb" data-active={active} aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <rect x="8" y="3" width="8" height="12" rx="4" />
+          <path d="M5.5 11.5v.5a6.5 6.5 0 0 0 13 0v-.5M12 18.5V22M8.5 22h7" />
+        </svg>
+      </div>
+      <h1 id="voice-title">Talk to Steward</h1>
 
       {!active && state !== "starting" ? (
         <div className="field-stack voice-intake">
           <label>
-            Guest email
+            Email
             <input type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" />
           </label>
           <label>
-            What is happening?
+            What happened?
             <textarea value={goal} onChange={(event) => setGoal(event.target.value)} />
           </label>
         </div>
@@ -175,19 +180,19 @@ export function VoiceConsole() {
       <div className="voice-controls">
         {!active ? (
           <button className="button button-primary" type="button" onClick={startSession} disabled={state === "starting" || email.trim() === ""}>
-            {state === "starting" ? "Connecting…" : "Start voice session"}
+            {state === "starting" ? "Connecting…" : "Start call"}
           </button>
         ) : (
           <>
             <button className="button button-secondary" type="button" onClick={toggleMute}>{muted ? "Unmute" : "Mute"}</button>
-            <button className="button button-danger" type="button" onClick={endSession}>End session</button>
+            <button className="button button-danger" type="button" onClick={endSession}>End call</button>
           </>
         )}
       </div>
 
       {visionRequest !== null ? (
         <aside className="vision-request" aria-live="polite">
-          <strong>Steward is asking to see the issue</strong>
+          <strong>Show Steward the issue?</strong>
           <p>{visionRequest.explanation}</p>
           <p className="vision-question">{visionRequest.question}</p>
           <div className="action-row">
@@ -198,7 +203,7 @@ export function VoiceConsole() {
       ) : null}
 
       <div className="transcript" role="status" aria-live="polite">
-        <strong>{state === "connected" ? "Live" : state === "reconnecting" ? "Reconnecting" : "Status"}</strong>
+        <strong>{state === "connected" ? "Live" : state === "reconnecting" ? "Reconnecting" : "Call"}</strong>
         <p>{message}</p>
         {cameraOn ? <small>Camera on · turn it off by ending the session</small> : null}
       </div>

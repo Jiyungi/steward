@@ -23,11 +23,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase,
     title: {
-      default: "Steward — property incidents, carried through",
+      default: "Steward — property help that follows through",
       template: "%s · Steward",
     },
     description:
-      "A voice-first property operations system that coordinates action and verifies outcomes.",
+      "Call Steward for property help, approved vendors, and verified follow-through.",
   };
 }
 
@@ -35,8 +35,8 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#faf6ef" },
-    { media: "(prefers-color-scheme: dark)", color: "#0b0807" },
+    { media: "(prefers-color-scheme: light)", color: "#f3f5f0" },
+    { media: "(prefers-color-scheme: dark)", color: "#f3f5f0" },
   ],
 };
 

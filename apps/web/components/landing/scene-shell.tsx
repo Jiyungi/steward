@@ -9,13 +9,6 @@ const LazyPropertyScene = lazy(async () => import("./property-scene"));
 
 type SceneState = "waiting" | "ready" | "enhanced" | "unsupported";
 
-const storyStages = [
-  { label: "Signal", detail: "A guest need enters the system." },
-  { label: "Coordinate", detail: "Steward keeps the context intact." },
-  { label: "Act", detail: "The right person or tool responds." },
-  { label: "Verify", detail: "Evidence closes the loop." },
-] as const;
-
 function supportsWebGl(): boolean {
   try {
     const canvas = document.createElement("canvas");
@@ -26,7 +19,6 @@ function supportsWebGl(): boolean {
 }
 
 export function SceneShell() {
-  const [activeStage, setActiveStage] = useState(0);
   const [sceneState, setSceneState] = useState<SceneState>("waiting");
 
   useEffect(() => {
@@ -54,38 +46,15 @@ export function SceneShell() {
 
   return (
     <div className={styles.shell} data-scene-state={sceneState}>
-      <SceneFallback activeStage={activeStage} />
+      <SceneFallback activeStage={0} />
       {sceneState === "ready" || sceneState === "enhanced" ? (
         <Suspense fallback={null}>
           <LazyPropertyScene
-            activeStage={activeStage}
+            activeStage={0}
             onReady={() => setSceneState((state) => (state === "ready" ? "enhanced" : state))}
           />
         </Suspense>
       ) : null}
-
-      <div className={styles.storyControl} aria-label="Explore the Steward system story">
-        <div className={styles.stageButtons}>
-          {storyStages.map((stage, index) => (
-            <button
-              className={styles.stageButton}
-              data-active={activeStage === index}
-              key={stage.label}
-              onClick={() => setActiveStage(index)}
-              type="button"
-              aria-pressed={activeStage === index}
-            >
-              <span className={styles.stageNumber} aria-hidden="true">
-                0{index + 1}
-              </span>
-              {stage.label}
-            </button>
-          ))}
-        </div>
-        <p className={styles.stageDetail} aria-live="polite">
-          {storyStages[activeStage]?.detail}
-        </p>
-      </div>
 
       {sceneState === "unsupported" ? (
         <p className="sr-only" role="status">

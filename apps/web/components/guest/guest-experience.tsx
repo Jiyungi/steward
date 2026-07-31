@@ -19,6 +19,7 @@ import {
 import { AccessView, type AccessState } from "./access-view";
 import { CameraRequest, type CameraState } from "./camera-request";
 import { DevelopmentSwitcher } from "./development-switcher";
+import { StewardLogo } from "../steward-logo";
 import styles from "./guest.module.css";
 
 interface GuestExperienceProps {
@@ -63,11 +64,11 @@ function frameIndex(value: string | undefined, scenario: GuestScenarioFixture): 
 
 function connectionContent(state: ConnectionState) {
   const content = {
-    connecting: { icon: "·", label: "Connecting", detail: "Preparing the secure voice channel" },
-    connected: { icon: "✓", label: "Connected", detail: "Voice help is available" },
-    reconnecting: { icon: "↻", label: "Reconnecting", detail: "Keeping your incident open" },
-    disconnected: { icon: "—", label: "Disconnected", detail: "Voice channel is not active" },
-    failed: { icon: "!", label: "Connection failed", detail: "The call could not be restored" },
+    connecting: { icon: "·", label: "Connecting", detail: "One moment" },
+    connected: { icon: "✓", label: "Connected", detail: "Voice is ready" },
+    reconnecting: { icon: "↻", label: "Reconnecting", detail: "Your request stays open" },
+    disconnected: { icon: "—", label: "Disconnected", detail: "Voice is off" },
+    failed: { icon: "!", label: "Connection failed", detail: "Try again" },
   } as const;
   return content[state];
 }
@@ -78,41 +79,41 @@ function voiceInstruction(frame: GuestTimelineFrame): { title: string; detail: s
     case "listening":
       return {
         title: "Tell me what is happening",
-        detail: "Describe what you notice in your own words. You do not need to identify the cause.",
+        detail: "Describe what you see or hear.",
       };
     case "thinking":
       return {
-        title: "Checking the next safe step",
-        detail: "Steward is reviewing the facts already shared. No external action is being claimed yet.",
+        title: "Checking the next step",
+        detail: "One moment.",
       };
     case "speaking":
       return {
         title: "Steward is responding",
-        detail: "You can interrupt or correct anything that does not match what you see.",
+        detail: "You can interrupt at any time.",
       };
     case "tool-pending":
       return {
         title: frame.voice?.safeLabel ?? "An external action is pending",
-        detail: "Steward is waiting for an actual result. Nothing has been booked or confirmed yet.",
+        detail: "Waiting for a response.",
       };
     case "camera-requested":
       return {
         title: "Choose whether to share a live view",
-        detail: "Camera access is optional. Voice troubleshooting remains available.",
+        detail: "You can continue without the camera.",
       };
     case "disconnected":
       return {
         title: "The voice connection paused",
-        detail: "Your incident remains open while the connection is restored or you choose another path.",
+        detail: "Your request is still open.",
       };
     case "ended":
       return frame.incident.state === "resolved"
-        ? { title: "The call has ended", detail: "The result below is backed by recorded evidence." }
-        : { title: "The call has ended", detail: "No verified resolution was recorded." };
+        ? { title: "Call ended", detail: "The result was verified." }
+        : { title: "Call ended", detail: "No result was verified." };
     default:
       return {
-        title: "Preparing voice help",
-        detail: "Steward will show the connection state here before the conversation begins.",
+        title: "Connecting",
+        detail: "One moment.",
       };
   }
 }
@@ -137,12 +138,12 @@ function Outcome({ incident }: { incident: IncidentSnapshot }) {
       <section className={`${styles.outcome} ${styles.resolvedOutcome}`} aria-labelledby="outcome-title">
         <span aria-hidden="true">✓</span>
         <div>
-          <p>Resolved with verified evidence</p>
-          <h2 id="outcome-title">Outcome verified</h2>
+          <p>Resolved</p>
+          <h2 id="outcome-title">Verified</h2>
           <p>{incident.outcome.summary}</p>
           <small>
-            Verified by {incident.outcome.verifiedBy} · {incident.outcome.evidenceRefs.length} evidence
-            {incident.outcome.evidenceRefs.length === 1 ? " reference" : " references"}
+            {incident.outcome.evidenceRefs.length} evidence
+            {incident.outcome.evidenceRefs.length === 1 ? " item" : " items"} · {incident.outcome.verifiedBy}
           </small>
         </div>
       </section>
@@ -154,10 +155,9 @@ function Outcome({ incident }: { incident: IncidentSnapshot }) {
       <section className={`${styles.outcome} ${styles.failedOutcome}`} aria-labelledby="outcome-title">
         <span aria-hidden="true">!</span>
         <div>
-          <p>Attempt failed</p>
-          <h2 id="outcome-title">Steward could not complete this call</h2>
-          <p>The connection failed before Steward could verify a resolution. No success was recorded.</p>
-          <small>Your incident history remains safe. Try again or use the property contact.</small>
+          <p>Call failed</p>
+          <h2 id="outcome-title">Nothing was verified</h2>
+          <p>Try again or contact the property.</p>
         </div>
       </section>
     );
@@ -168,10 +168,9 @@ function Outcome({ incident }: { incident: IncidentSnapshot }) {
       <section className={`${styles.outcome} ${styles.incompleteOutcome}`} aria-labelledby="outcome-title">
         <span aria-hidden="true">→</span>
         <div>
-          <p>Escalated · incomplete</p>
-          <h2 id="outcome-title">A person needs to continue</h2>
-          <p>Steward did not have enough verified evidence to close the incident.</p>
-          <small>Completed steps are preserved so the property contact can continue safely.</small>
+          <p>Escalated</p>
+          <h2 id="outcome-title">The property team will continue</h2>
+          <p>Steward did not have enough evidence to close this.</p>
         </div>
       </section>
     );
@@ -182,10 +181,10 @@ function Outcome({ incident }: { incident: IncidentSnapshot }) {
     <div className={styles.incidentPhase} role="status">
       <span aria-hidden="true">{vendorPending ? "↗" : "○"}</span>
       <p>
-        <strong>{vendorPending ? "Vendor or tool action pending" : "Active diagnosis"}</strong>
+        <strong>{vendorPending ? "Waiting for a vendor" : "In progress"}</strong>
         {vendorPending
-          ? "Waiting for a real response before anything is confirmed."
-          : "Steward is still gathering facts. No outcome has been declared."}
+          ? "Nothing is confirmed yet."
+          : "Steward is gathering the details."}
       </p>
     </div>
   );
@@ -193,12 +192,10 @@ function Outcome({ incident }: { incident: IncidentSnapshot }) {
 
 function IncidentView({
   frame,
-  scenario,
   initialCamera,
   onAdvance,
 }: {
   frame: GuestTimelineFrame;
-  scenario: GuestScenarioFixture;
   initialCamera: CameraState | null;
   onAdvance(): void;
 }) {
@@ -228,16 +225,9 @@ function IncidentView({
       </section>
 
       <article className={styles.conversation}>
-        <header className={styles.incidentHeader}>
-          <p>Temporary guest help</p>
-          <h1>Steward is with you.</h1>
-          <span>Incident ref · {frame.incident.id}</span>
-        </header>
-
         <section className={styles.instruction} aria-labelledby="instruction-title">
           <VoicePresence voice={frame.voice} />
-          <p>{frame.voice?.state === "tool-pending" ? "External action" : "Current instruction"}</p>
-          <h2 id="instruction-title">{instruction.title}</h2>
+          <h1 id="instruction-title">{instruction.title}</h1>
           <p>{instruction.detail}</p>
         </section>
 
@@ -273,8 +263,7 @@ function IncidentView({
 
         <footer className={styles.guestFooter}>
           <p>
-            If there is immediate danger, leave the area and contact local emergency services. Steward
-            does not replace emergency response.
+            In immediate danger, leave the area and call emergency services.
           </p>
         </footer>
       </article>
@@ -322,12 +311,7 @@ export function GuestExperience({
     <main className={`${styles.guestShell} guest-theme`}>
       <nav className={styles.guestNav} aria-label="Guest navigation">
         <Link href="/" className={styles.guestBrand} aria-label="Steward home">
-          <span className={styles.guestBrandMark} aria-hidden="true">
-            <i />
-            <i />
-            <i />
-          </span>
-          Steward
+          <StewardLogo markClassName={styles.guestBrandMark} />
         </Link>
         <span className={styles.sessionLabel}>
           <i aria-hidden="true" />
@@ -339,7 +323,6 @@ export function GuestExperience({
         {access === "valid" ? (
           <IncidentView
             frame={frame}
-            scenario={scenario}
             initialCamera={cameraState(initialCamera)}
             onAdvance={advance}
           />

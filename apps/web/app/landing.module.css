@@ -1,35 +1,9 @@
 .landing {
-  position: relative;
+  --logo-knob: #d7794f;
   min-height: 100svh;
   overflow: hidden;
-  background: #0b0807;
-  color: var(--color-ink);
-  isolation: isolate;
-}
-
-.landing::before {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background:
-    radial-gradient(circle at 64% 48%, oklch(0.3 0.1 31 / 0.32), transparent 31rem),
-    radial-gradient(circle at 83% 78%, oklch(0.22 0.07 65 / 0.2), transparent 24rem),
-    linear-gradient(135deg, #120b09 0%, #0b0807 48%, #17100b 100%);
-  content: "";
-}
-
-.landing::after {
-  position: absolute;
-  inset: 0;
-  z-index: 8;
-  background: linear-gradient(
-    to right,
-    oklch(0.07 0.018 32 / 0.84) 0%,
-    oklch(0.07 0.018 32 / 0.28) 34%,
-    transparent 62%
-  );
-  content: "";
-  pointer-events: none;
+  background: #f1f4ed;
+  color: #21312a;
 }
 
 .nav {
@@ -38,75 +12,53 @@
   left: 50%;
   z-index: var(--z-nav);
   display: flex;
-  width: min(100% - 4rem, 92rem);
-  height: 6rem;
+  width: min(100% - 4rem, 88rem);
+  min-height: 6rem;
   align-items: center;
   justify-content: space-between;
   transform: translateX(-50%);
 }
 
 .brand,
-.navLink {
+.navLink,
+.primaryAction,
+.secondaryAction {
   text-decoration: none;
 }
 
-.brand {
+.brand > span {
   display: inline-flex;
   align-items: center;
   gap: 0.72rem;
-  font-size: 1.08rem;
-  font-weight: 680;
+  font-size: 1.28rem;
+  font-weight: 760;
   letter-spacing: -0.025em;
 }
 
 .mark {
-  position: relative;
-  display: grid;
-  width: 1.65rem;
-  height: 1.65rem;
-  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  color: #284c3c;
 }
 
-.mark span {
-  position: absolute;
-  width: 0.38rem;
-  height: 0.38rem;
-  border-radius: 50%;
-  background: var(--color-primary);
-  box-shadow: 0 0 1rem oklch(0.72 0.16 35 / 0.55);
-}
-
-.mark span:first-child {
-  transform: translate(-0.5rem, 0.35rem);
-}
-
-.mark span:nth-child(2) {
-  width: 0.52rem;
-  height: 0.52rem;
-}
-
-.mark span:last-child {
-  background: var(--color-signal);
-  transform: translate(0.5rem, -0.35rem);
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 1.65rem;
 }
 
 .navLink {
-  display: inline-flex;
   min-height: 2.75rem;
-  padding: 0.65rem 0;
+  display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
-  color: oklch(0.81 0.03 55);
+  color: #53645b;
   font-size: 0.94rem;
+  font-weight: 650;
   transition: color var(--motion-quick) ease;
 }
 
-.navLink span {
-  color: var(--color-primary);
-}
-
 .navLink:hover {
-  color: var(--color-ink);
+  color: #1f3d31;
 }
 
 .hero {
@@ -116,94 +68,75 @@
 
 .sceneRegion {
   position: absolute;
-  inset: 0;
+  inset: 0 0 0 38%;
 }
 
 .heroCopy {
   position: absolute;
-  bottom: clamp(7.6rem, 15vh, 10.8rem);
-  left: max(2rem, calc((100vw - 92rem) / 2));
-  z-index: 10;
-  width: min(39rem, calc(100vw - 4rem));
-}
-
-.kicker {
-  display: flex;
-  margin: 0 0 1.2rem;
-  align-items: center;
-  gap: 0.65rem;
-  color: oklch(0.78 0.05 48);
-  font-size: 0.95rem;
-  letter-spacing: -0.01em;
-}
-
-.kicker span {
-  width: 0.42rem;
-  height: 0.42rem;
-  border-radius: 50%;
-  background: var(--color-signal);
-  box-shadow: 0 0 1.3rem oklch(0.82 0.145 78 / 0.72);
+  top: 50%;
+  left: max(2rem, calc((100vw - 88rem) / 2));
+  z-index: 4;
+  width: min(39rem, 44vw);
+  transform: translateY(-44%);
 }
 
 .hero h1 {
-  max-width: 8.8ch;
+  max-width: 10.5ch;
   margin: 0;
-  font-size: clamp(4rem, 7vw, 7.4rem);
-  font-weight: 510;
-  letter-spacing: -0.072em;
-  line-height: 0.86;
+  font-size: clamp(3.55rem, 6.3vw, 6rem);
+  font-weight: 680;
+  letter-spacing: -0.04em;
+  line-height: 0.96;
   text-wrap: balance;
 }
 
 .summary {
-  max-width: 30rem;
-  margin: 1.65rem 0 0;
-  color: oklch(0.78 0.035 52);
-  font-size: clamp(1.02rem, 1.25vw, 1.16rem);
-  letter-spacing: -0.012em;
+  max-width: 35rem;
+  margin: 1.55rem 0 0;
+  color: #53645b;
+  font-size: clamp(1.05rem, 1.35vw, 1.22rem);
   line-height: 1.55;
   text-wrap: pretty;
+}
+
+.actions {
+  display: flex;
+  margin-top: 2rem;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.85rem 1.25rem;
 }
 
 .primaryAction {
   display: inline-flex;
   min-height: 3.35rem;
-  margin-top: 2rem;
-  padding: 0.82rem 1.18rem 0.82rem 1.35rem;
-  border: 1px solid oklch(0.84 0.13 42 / 0.72);
-  border-radius: 0.7rem;
+  padding: 0.85rem 1.35rem;
+  border-radius: 0.8rem;
   align-items: center;
-  gap: 1.25rem;
-  background: var(--color-primary);
-  box-shadow:
-    0 0 0 1px oklch(0.96 0.03 65 / 0.08) inset,
-    0 1.4rem 3.8rem oklch(0.52 0.15 31 / 0.28);
-  color: oklch(0.12 0.035 31);
-  font-weight: 720;
-  text-decoration: none;
-  transition:
-    background var(--motion-quick) ease,
-    transform var(--motion-quick) ease;
-}
-
-.primaryAction span {
-  font-size: 1.08rem;
+  justify-content: center;
+  background: #284c3c;
+  box-shadow: 0 0.75rem 1.8rem rgb(40 76 60 / 18%);
+  color: #fff;
+  font-weight: 740;
+  transition: background var(--motion-quick) ease, transform var(--motion-quick) ease;
 }
 
 .primaryAction:hover {
-  background: var(--color-primary-strong);
+  background: #1f3d31;
   transform: translateY(-2px);
 }
 
-.storyNote {
-  position: absolute;
-  right: max(2rem, calc((100vw - 92rem) / 2));
-  bottom: 1.55rem;
-  z-index: 10;
-  margin: 0;
-  color: oklch(0.62 0.035 48);
-  font-size: 0.74rem;
-  letter-spacing: 0.005em;
+.secondaryAction {
+  min-height: 3rem;
+  display: inline-flex;
+  align-items: center;
+  color: #284c3c;
+  font-weight: 700;
+}
+
+.secondaryAction:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.28rem;
 }
 
 @media (max-width: 66rem) {
@@ -211,77 +144,78 @@
     overflow-y: auto;
   }
 
-  /* Keep the stacked copy on a clean field instead of over the massing. */
-  .landing::after {
-    background: linear-gradient(
-      to top,
-      oklch(0.07 0.018 32 / 0.99) 0%,
-      oklch(0.07 0.018 32 / 0.97) 42%,
-      oklch(0.07 0.018 32 / 0.72) 56%,
-      transparent 78%
-    );
+  .hero {
+    min-height: 62rem;
   }
 
-  .hero {
-    min-height: 58rem;
+  .sceneRegion {
+    inset: 0 0 44% 0;
   }
 
   .heroCopy {
-    bottom: 10rem;
+    top: auto;
+    right: 2rem;
+    bottom: 4.5rem;
+    width: auto;
+    transform: none;
   }
 
   .hero h1 {
-    max-width: 8.4ch;
-    font-size: clamp(4.6rem, 12vw, 7rem);
+    max-width: 10.5ch;
+    font-size: clamp(3.8rem, 10vw, 5.8rem);
   }
 }
 
 @media (max-width: 38rem) {
   .nav {
     width: calc(100% - 2rem);
-    height: 4.6rem;
+    min-height: 4.8rem;
+  }
+
+  .brand > span {
+    font-size: 1.08rem;
+  }
+
+  .mark {
+    width: 1.9rem;
+    height: 1.9rem;
+  }
+
+  .navLinks {
+    gap: 1rem;
   }
 
   .navLink {
-    font-size: 0.86rem;
+    font-size: 0.85rem;
   }
 
   .hero {
     min-height: max(100svh, 48rem);
   }
 
-  .heroCopy {
-    bottom: 9.8rem;
-    left: 1rem;
-    width: calc(100% - 2rem);
+  .sceneRegion {
+    inset: 4rem -7rem 48% -7rem;
   }
 
-  .kicker {
-    margin-bottom: 0.8rem;
-    font-size: 0.86rem;
+  .heroCopy {
+    right: 1rem;
+    bottom: 2.2rem;
+    left: 1rem;
   }
 
   .hero h1 {
-    max-width: 9ch;
-    font-size: clamp(3.45rem, 17vw, 5.2rem);
-    line-height: 0.9;
+    max-width: 11ch;
+    font-size: clamp(3rem, 14.5vw, 4.6rem);
   }
 
   .summary {
-    max-width: 24rem;
-    margin-top: 1.1rem;
-    font-size: 0.98rem;
-    line-height: 1.45;
+    max-width: 29rem;
+    margin-top: 1rem;
+    font-size: 1rem;
   }
 
-  .primaryAction {
-    min-height: 3.15rem;
-    margin-top: 1.35rem;
-    padding-block: 0.72rem;
-  }
-
-  .storyNote {
-    display: none;
+  .actions {
+    margin-top: 1.4rem;
   }
 }
 

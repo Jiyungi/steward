@@ -10,22 +10,22 @@ const accessCases = [
 
 const fixtureCases = [
   ["connected", 0, "Tell me what is happening"],
-  ["connecting", 0, "Preparing voice help"],
+  ["connecting", 0, "Connecting"],
   ["speaking", 0, "Steward is responding"],
   ["vendorPending", 0, "Contacting an approved property partner"],
   ["cameraRequested", 0, "Choose whether to share a live view"],
   ["disconnected", 0, "The voice connection paused"],
-  ["escalated", 0, "A person needs to continue"],
+  ["escalated", 0, "The property team will continue"],
   ["resolved", 0, "Tell me what is happening"],
-  ["resolved", 1, "Checking the next safe step"],
+  ["resolved", 1, "Checking the next step"],
   ["resolved", 2, "Calling an approved vendor"],
   ["resolved", 3, "Choose whether to share a live view"],
-  ["resolved", 4, "Outcome verified"],
+  ["resolved", 4, "Verified"],
   ["cameraDenied", 0, "Choose whether to share a live view"],
   ["cameraDenied", 1, "Camera declined"],
   ["reconnecting", 0, "The voice connection paused"],
   ["reconnecting", 1, "Tell me what is happening"],
-  ["failed", 0, "Steward could not complete this call"],
+  ["failed", 0, "Nothing was verified"],
 ] as const;
 
 test.describe("Guest access and fixture states", () => {
@@ -38,10 +38,10 @@ test.describe("Guest access and fixture states", () => {
     await page.goto("/guest?access=demo-entry");
     await page.getByLabel("Booking email").fill("judge@example.com");
     await page.getByRole("button", { name: "Enter demo stay" }).click();
-    await expect(page.getByRole("heading", { level: 1, name: "Steward is with you." })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "Tell me what is happening" })).toBeVisible();
 
     await page.goto("/guest?access=expired&fixture=expiredLink");
-    await expect(page.getByText("Your information remains protected.")).toBeVisible();
+    await expect(page.getByText("Need help?")).toBeVisible();
   });
 
   test("renders every shared and presentation fixture frame honestly", async ({ page }) => {
@@ -93,6 +93,6 @@ test.describe("Guest access and fixture states", () => {
     await page.goto("/guest?access=valid&fixture=failed");
 
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-    await expect(page.getByRole("heading", { name: "Steward could not complete this call" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Nothing was verified" })).toBeVisible();
   });
 });

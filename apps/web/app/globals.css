@@ -1,17 +1,17 @@
 :root {
   color-scheme: light;
-  --bg: oklch(0.985 0.008 70);
-  --surface: oklch(1 0 0);
-  --surface-muted: oklch(0.955 0.018 65);
-  --ink: oklch(0.18 0.025 32);
-  --muted: oklch(0.48 0.035 38);
-  --line: oklch(0.86 0.025 55);
-  --primary: oklch(0.58 0.17 31);
-  --primary-strong: oklch(0.47 0.16 29);
-  --signal: oklch(0.80 0.14 78);
-  --success: oklch(0.56 0.13 150);
-  --danger: oklch(0.56 0.18 28);
-  --shadow: 0 18px 44px oklch(0.18 0.02 32 / 0.12);
+  --bg: #f3f5f0;
+  --surface: #ffffff;
+  --surface-muted: #e7ece5;
+  --ink: #21312a;
+  --muted: #5b6b62;
+  --line: #ced7d0;
+  --primary: #376650;
+  --primary-strong: #284c3c;
+  --signal: #d7794f;
+  --success: #397451;
+  --danger: #a7463e;
+  --shadow: 0 18px 44px rgb(33 49 42 / 10%);
   --radius: 14px;
   font-family: Aptos, "Segoe UI Variable", "Segoe UI", sans-serif;
 }
@@ -69,7 +69,7 @@ a { color: inherit; }
 .button { min-height: 48px; padding: 0 20px; border: 0; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-weight: 700; cursor: pointer; transition: transform 180ms ease, background 180ms ease, color 180ms ease; }
 .button:hover:not(:disabled) { transform: translateY(-1px); }
 .button:disabled { opacity: .55; cursor: not-allowed; }
-.button-primary { background: var(--primary-strong); color: white; box-shadow: 0 10px 24px oklch(0.47 0.16 29 / .2); }
+.button-primary { background: var(--primary-strong); color: white; box-shadow: 0 10px 24px rgb(40 76 60 / 18%); }
 .button-primary:hover:not(:disabled) { background: var(--primary); }
 .button-secondary { background: var(--surface-muted); color: var(--ink); }
 .button-danger { background: oklch(0.94 0.05 28); color: oklch(0.39 0.16 28); }
@@ -122,10 +122,14 @@ a { color: inherit; }
 .vendor-layout .section-block { border-top: 1px solid var(--line); }
 .two-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-.voice-stage { min-height: calc(100vh - 72px); display: grid; place-items: center; padding: 32px; }
-.voice-console { width: min(720px, 100%); background: var(--surface); border-radius: 18px; padding: clamp(24px, 5vw, 54px); box-shadow: var(--shadow); }
-.voice-orb { width: 76px; height: 76px; border-radius: 26px; display: grid; place-items: center; background: var(--surface-muted); color: var(--primary-strong); font-weight: 800; margin-bottom: 30px; transition: border-radius 240ms ease, background 240ms ease; }
-.voice-orb[data-active="true"] { border-radius: 50%; background: oklch(0.90 0.07 42); }
+.voice-stage { min-height: 100vh; display: grid; place-items: center; padding: 32px; background: #f3f5f0; }
+.voice-console { --logo-knob: var(--signal); width: min(650px, 100%); padding: clamp(24px, 5vw, 48px) 0; }
+.voice-brand { display: inline-flex; align-items: center; gap: 9px; margin-bottom: clamp(52px, 9vh, 88px); color: var(--ink); font-weight: 760; letter-spacing: -.02em; }
+.voice-brand-mark { width: 34px; height: 34px; color: var(--primary-strong); }
+.voice-orb { width: 64px; height: 64px; border-radius: 18px; display: grid; place-items: center; background: var(--surface-muted); margin-bottom: 24px; transition: border-radius 240ms ease, background 240ms ease; }
+.voice-orb svg { width: 29px; height: 29px; stroke: var(--primary-strong); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.voice-orb[data-active="true"] { border-radius: 50%; background: #dfeae2; }
+.voice-orb[data-active="true"] svg { animation: voice-breathe 1.4s ease-in-out infinite; }
 .voice-console h1 { font-size: clamp(2.2rem, 6vw, 4.2rem); letter-spacing: -.04em; line-height: 1; margin: 0; }
 .voice-console > p { color: var(--muted); line-height: 1.65; max-width: 60ch; }
 .voice-controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
@@ -137,6 +141,10 @@ a { color: inherit; }
 .vision-request p { color: var(--muted); line-height: 1.5; }
 .vision-request .vision-question { color: var(--ink); font-weight: 650; }
 .remote-audio { display: none; }
+
+@keyframes voice-breathe {
+  50% { transform: scaleY(.55); opacity: .55; }
+}
 
 @media (max-width: 800px) {
   .site-header { padding: 0 18px; gap: 18px; }

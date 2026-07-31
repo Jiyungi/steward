@@ -29,7 +29,7 @@ test.describe("inclusive interaction", () => {
     await expect(page.locator("main")).toHaveCount(1);
     await expect(page.getByRole("navigation", { name: "Guest navigation" })).toHaveCount(1);
     await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
-    await expect(page.getByRole("heading", { level: 2 })).toHaveCount(2);
+    await expect(page.getByRole("heading", { level: 2 })).toHaveCount(1);
     await expect(page.getByText("Connected", { exact: true })).toBeVisible();
   });
 
@@ -52,7 +52,7 @@ test.describe("inclusive interaction", () => {
     await page.goto("/guest?access=valid&fixture=reconnecting&frame=0");
     await expect(page.getByLabel("Current call and connection state")).toContainText("Reconnecting");
     await expect(page.getByLabel("Current call and connection state")).toContainText(
-      "Keeping your incident open",
+      "Your request stays open",
     );
   });
 });
