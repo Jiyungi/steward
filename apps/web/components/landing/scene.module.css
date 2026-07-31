@@ -12,6 +12,11 @@
 .fallback {
   z-index: 1;
   margin: 0;
+  transition: opacity var(--motion-standard) ease;
+}
+
+.shell[data-scene-state="enhanced"] .fallback {
+  opacity: 0;
 }
 
 .canvasWrap {

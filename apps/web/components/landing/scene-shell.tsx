@@ -7,7 +7,7 @@ import styles from "./scene.module.css";
 
 const LazyPropertyScene = lazy(async () => import("./property-scene"));
 
-type SceneState = "waiting" | "ready" | "unsupported";
+type SceneState = "waiting" | "ready" | "enhanced" | "unsupported";
 
 function supportsWebGl(): boolean {
   try {
@@ -47,9 +47,11 @@ export function SceneShell() {
   return (
     <div className={styles.shell} data-scene-state={sceneState}>
       <SceneFallback />
-      {sceneState === "ready" ? (
+      {sceneState === "ready" || sceneState === "enhanced" ? (
         <Suspense fallback={null}>
-          <LazyPropertyScene />
+          <LazyPropertyScene
+            onReady={() => setSceneState((state) => (state === "ready" ? "enhanced" : state))}
+          />
         </Suspense>
       ) : null}
       {sceneState === "unsupported" ? (

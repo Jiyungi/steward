@@ -51,8 +51,8 @@ function accessState(value: string | undefined): AccessState {
   return accessStates.has(value as AccessState) ? (value as AccessState) : "valid";
 }
 
-function cameraState(value: string | undefined): CameraState {
-  return cameraStates.has(value as CameraState) ? (value as CameraState) : "request";
+function cameraState(value: string | undefined): CameraState | null {
+  return cameraStates.has(value as CameraState) ? (value as CameraState) : null;
 }
 
 function frameIndex(value: string | undefined, scenario: GuestScenarioFixture): number {
@@ -199,11 +199,13 @@ function IncidentView({
 }: {
   frame: GuestTimelineFrame;
   scenario: GuestScenarioFixture;
-  initialCamera: CameraState;
+  initialCamera: CameraState | null;
   onAdvance(): void;
 }) {
   const connection = connectionContent(frame.connection);
   const instruction = voiceInstruction(frame);
+  const effectiveCameraState =
+    initialCamera ?? (frame.visionRequest?.status === "declined" ? "declined" : "request");
 
   return (
     <>
@@ -222,7 +224,7 @@ function IncidentView({
         <header className={styles.incidentHeader}>
           <p>Steward guest help</p>
           <h1>Help is here.</h1>
-          <span>Temporary access · incident {frame.incident.id}</span>
+          <span>Temporary access · {frame.incident.id}</span>
         </header>
 
         <section className={styles.instruction} aria-labelledby="instruction-title">
@@ -243,17 +245,23 @@ function IncidentView({
           <CameraRequest
             key={`${frame.visionRequest.id}-${initialCamera}`}
             request={frame.visionRequest}
-            initialState={initialCamera}
+            initialState={effectiveCameraState}
             onDecline={onAdvance}
           />
         ) : null}
 
         <Outcome incident={frame.incident} />
 
-        {frame.connection === "reconnecting" || frame.connection === "disconnected" ? (
-          <button type="button" className={styles.retryButton}>
+        {frame.connection === "reconnecting" ? (
+          <button type="button" className={styles.retryButton} onClick={onAdvance}>
             Try voice connection again
           </button>
+        ) : null}
+
+        {frame.connection === "disconnected" ? (
+          <Link className={styles.retryButton} href="/guest?access=valid&fixture=connected">
+            Try voice connection again
+          </Link>
         ) : null}
 
         <footer className={styles.guestFooter}>

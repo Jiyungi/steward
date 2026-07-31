@@ -2,6 +2,7 @@
   "name": "@steward/web",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "predev": "pnpm --filter @steward/contracts build",
     "dev": "next dev",

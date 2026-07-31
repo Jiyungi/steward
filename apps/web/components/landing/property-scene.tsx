@@ -29,7 +29,7 @@ function PropertyModel({ reducedMotion }: { reducedMotion: boolean }) {
   });
 
   return (
-    <group ref={group} rotation={[-0.16, -0.44, 0]} position={[0, -0.1, 0]}>
+    <group ref={group} rotation={[-0.16, -0.44, 0]} position={[-0.12, -0.1, 0]} scale={0.86}>
       <RoundedBox args={[5.2, 0.22, 3.8]} radius={0.12} smoothness={3} position={[0, -0.95, 0]}>
         <meshStandardMaterial color="#101b21" roughness={0.66} metalness={0.18} />
       </RoundedBox>
@@ -93,7 +93,7 @@ function PropertyModel({ reducedMotion }: { reducedMotion: boolean }) {
   );
 }
 
-export default function PropertyScene() {
+export default function PropertyScene({ onReady }: { onReady(): void }) {
   const prefersReducedMotion = useReducedMotion();
   const reducedMotion = prefersReducedMotion ?? false;
 
@@ -104,6 +104,7 @@ export default function PropertyScene() {
         dpr={[1, 1.5]}
         frameloop={reducedMotion ? "demand" : "always"}
         gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
+        onCreated={onReady}
       >
         <ambientLight intensity={0.9} />
         <directionalLight color="#d9f4ff" intensity={2.4} position={[3, 6, 5]} />

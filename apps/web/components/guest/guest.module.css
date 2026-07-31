@@ -455,8 +455,12 @@
 }
 
 .retryButton {
+  display: grid;
   width: 100%;
+  min-height: 2.9rem;
   margin-top: 1rem;
+  place-items: center;
+  text-decoration: none;
 }
 
 .guestFooter {
