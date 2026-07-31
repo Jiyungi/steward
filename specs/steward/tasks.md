@@ -111,7 +111,7 @@ Person 2 starts Wave 3B immediately after the Task 1.6 contract-freeze commit wh
   - _Requirements: 2, 6, 19, 20, 22_
   - **Verification:** Tests accept `.env.example`-shaped configuration, reject each missing required value, and confirm client config contains no server secrets.
 
-- [ ] 1.3 Create the shared contract package
+- [x] 1.3 Create the shared contract package
   - Implement Zod schemas and inferred TypeScript types for:
     - `ActorClaim`
     - `GuestLinkClaim` and `DemoGuestSession`

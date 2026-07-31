@@ -45,6 +45,12 @@ importers:
         specifier: 4.4.3
         version: 4.4.3
 
+  packages/contracts:
+    dependencies:
+      zod:
+        specifier: 4.4.3
+        version: 4.4.3
+
   packages/observability:
     dependencies:
       '@langfuse/otel':
