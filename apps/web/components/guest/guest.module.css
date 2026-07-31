@@ -1,0 +1,651 @@
+.guestShell {
+  min-height: 100svh;
+  background:
+    linear-gradient(180deg, oklch(0.955 0.018 230 / 0.86), transparent 14rem),
+    var(--color-bg);
+  color: var(--color-ink);
+}
+
+.guestNav {
+  display: flex;
+  width: min(100% - 2rem, 72rem);
+  min-height: 4.5rem;
+  margin-inline: auto;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-muted);
+  font-size: 0.84rem;
+}
+
+.guestBrand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.58rem;
+  color: var(--color-ink);
+  font-size: 0.98rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.guestBrand > span {
+  display: grid;
+  width: 1.72rem;
+  height: 1.72rem;
+  border-radius: 42% 58% 55% 45%;
+  place-items: center;
+  background: var(--color-primary-strong);
+  color: white;
+  font-size: 0.78rem;
+}
+
+.guestColumn {
+  width: min(100% - 2rem, 38rem);
+  margin-inline: auto;
+  padding: 1.5rem 0 5rem;
+}
+
+.connectionBar {
+  position: sticky;
+  top: 0.75rem;
+  z-index: 10;
+  display: grid;
+  min-height: 4.5rem;
+  padding: 0.68rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.7rem;
+  background: var(--color-bg);
+  box-shadow: 0 0.8rem 2rem oklch(0.2 0.03 230 / 0.07);
+}
+
+.connectionIcon {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  place-items: center;
+  background: var(--color-surface-strong);
+  color: var(--color-muted);
+  font-weight: 800;
+}
+
+.connection-connected {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.connection-reconnecting,
+.connection-connecting {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+}
+
+.connection-failed {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.connectionBar p {
+  display: flex;
+  min-width: 0;
+  margin: 0;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.connectionBar p strong {
+  font-size: 0.9rem;
+}
+
+.connectionBar p span {
+  overflow: hidden;
+  margin-top: 0.2rem;
+  color: var(--color-muted);
+  font-size: 0.76rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modeLabel {
+  padding: 0.3rem 0.55rem;
+  border-radius: var(--radius-round);
+  background: var(--color-surface);
+  color: var(--color-muted);
+  font-size: 0.72rem;
+}
+
+.conversation {
+  padding-top: 3.75rem;
+}
+
+.incidentHeader > p,
+.instruction > p:first-of-type,
+.inlineHeading p,
+.outcome > div > p:first-child,
+.contextLabel {
+  margin: 0;
+  color: var(--color-primary-strong);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.incidentHeader h1 {
+  margin: 0.3rem 0 0.65rem;
+  font-size: clamp(2.65rem, 13vw, 4.5rem);
+  font-weight: 570;
+  letter-spacing: -0.06em;
+  line-height: 0.98;
+}
+
+.incidentHeader > span {
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+}
+
+.instruction {
+  position: relative;
+  margin-top: 3.3rem;
+  padding-left: 4.3rem;
+}
+
+.instruction h2 {
+  margin: 0.4rem 0 0.6rem;
+  font-size: clamp(1.65rem, 8vw, 2.35rem);
+  font-weight: 620;
+  letter-spacing: -0.045em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.instruction > p:last-child {
+  max-width: 31rem;
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.65;
+}
+
+.voicePresence {
+  position: absolute;
+  top: 0.1rem;
+  left: 0;
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+}
+
+.voicePresence span:first-child {
+  position: absolute;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 42% 58% 60% 40%;
+  background: var(--color-primary-soft);
+}
+
+.voicePresence span:last-child {
+  z-index: 1;
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow: 0 0 1.2rem oklch(0.51 0.118 230 / 0.4);
+}
+
+.notice {
+  display: flex;
+  margin: 2.4rem 0 0;
+  align-items: flex-start;
+  gap: 0.7rem;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.notice span {
+  display: grid;
+  width: 1.45rem;
+  height: 1.45rem;
+  flex: 0 0 auto;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  place-items: center;
+  color: var(--color-primary-strong);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.cameraSection {
+  margin-top: 3rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.inlineHeading {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.inlineHeading h2,
+.cameraRecovery h2 {
+  margin: 0.2rem 0 0;
+  font-size: 1.35rem;
+  letter-spacing: -0.03em;
+}
+
+.cameraGlyph,
+.liveGlyph,
+.neutralGlyph {
+  display: grid;
+  width: 2.7rem;
+  height: 2.7rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  place-items: center;
+  background: var(--color-signal-soft);
+  color: var(--color-warning);
+}
+
+.liveGlyph {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.neutralGlyph {
+  background: var(--color-surface-strong);
+  color: var(--color-muted);
+}
+
+.cameraQuestion {
+  margin: 1.3rem 0 0.45rem;
+  color: var(--color-ink) !important;
+  font-size: 1.12rem;
+  font-weight: 650;
+}
+
+.cameraSection > p,
+.cameraRecovery p {
+  margin: 0.45rem 0 0;
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+
+.permissionCopy {
+  font-size: 0.86rem;
+}
+
+.cameraActions {
+  display: flex;
+  margin-top: 1.3rem;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.cameraActions button,
+.secondaryButton,
+.retryButton,
+.accessForm button {
+  min-height: 2.9rem;
+  padding: 0.68rem 1rem;
+  border: 1px solid var(--color-primary-strong);
+  border-radius: var(--radius-round);
+  background: var(--color-primary-strong);
+  color: white;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.cameraActions button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.secondaryButton {
+  border-color: var(--color-border) !important;
+  background: transparent !important;
+  color: var(--color-ink) !important;
+}
+
+.previewFrame {
+  position: relative;
+  overflow: hidden;
+  margin-top: 1.2rem;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-lg);
+  background: oklch(0.15 0.02 230);
+}
+
+.previewFrame video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.previewFrame span {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 0.75rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--radius-round);
+  background: oklch(0.13 0.02 230 / 0.86);
+  color: white;
+  font-size: 0.72rem;
+}
+
+.cameraRecovery {
+  display: flex;
+  gap: 1rem;
+}
+
+.cameraRecovery strong {
+  display: inline-block;
+  margin-top: 0.7rem;
+  font-size: 0.88rem;
+}
+
+.incidentPhase {
+  display: flex;
+  margin-top: 3rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--color-border);
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+
+.incidentPhase > span {
+  display: grid;
+  width: 1.8rem;
+  height: 1.8rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  place-items: center;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  font-weight: 700;
+}
+
+.incidentPhase p {
+  display: flex;
+  margin: 0;
+  flex-direction: column;
+  color: var(--color-muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.incidentPhase strong {
+  margin-bottom: 0.2rem;
+  color: var(--color-ink);
+}
+
+.outcome {
+  display: flex;
+  margin-top: 3rem;
+  padding: 1.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  align-items: flex-start;
+  gap: 1rem;
+  background: var(--color-surface);
+}
+
+.outcome > span {
+  display: grid;
+  width: 2.1rem;
+  height: 2.1rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  place-items: center;
+  background: var(--color-surface-strong);
+  font-weight: 800;
+}
+
+.outcome h2 {
+  margin: 0.25rem 0 0.45rem;
+  font-size: 1.45rem;
+  letter-spacing: -0.035em;
+}
+
+.outcome div > p:not(:first-child) {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.55;
+}
+
+.outcome small {
+  display: block;
+  margin-top: 0.8rem;
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+
+.resolvedOutcome {
+  border-color: oklch(0.72 0.1 150);
+  background: var(--color-success-soft);
+}
+
+.resolvedOutcome > span {
+  background: var(--color-success);
+  color: white;
+}
+
+.failedOutcome {
+  border-color: oklch(0.76 0.1 28);
+  background: var(--color-danger-soft);
+}
+
+.failedOutcome > span {
+  background: var(--color-danger);
+  color: white;
+}
+
+.incompleteOutcome {
+  border-color: oklch(0.78 0.1 78);
+  background: var(--color-warning-soft);
+}
+
+.incompleteOutcome > span {
+  background: var(--color-warning);
+  color: white;
+}
+
+.retryButton {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.guestFooter {
+  margin-top: 4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-muted);
+  font-size: 0.76rem;
+}
+
+.accessPanel {
+  padding: clamp(3rem, 12vh, 7rem) 0 4rem;
+}
+
+.accessPanel h1 {
+  max-width: 11ch;
+  margin: 0.4rem 0 1rem;
+  font-size: clamp(2.6rem, 12vw, 4.4rem);
+  font-weight: 570;
+  letter-spacing: -0.06em;
+  line-height: 0.98;
+}
+
+.accessPanel > p:not(.contextLabel, .privacyLine) {
+  max-width: 31rem;
+  color: var(--color-muted);
+  font-size: 1.03rem;
+  line-height: 1.65;
+}
+
+.accessForm {
+  display: grid;
+  margin-top: 2rem;
+  gap: 0.55rem;
+}
+
+.accessForm label {
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.accessForm input {
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: white;
+}
+
+.accessForm button {
+  width: fit-content;
+  margin-top: 0.45rem;
+}
+
+.privacyLine {
+  color: var(--color-muted);
+  font-size: 0.8rem;
+}
+
+.accessSymbol {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 1.5rem;
+  border-radius: 50%;
+  place-items: center;
+  background: var(--color-surface-strong);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.dangerSymbol {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.safetyNote {
+  display: flex;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  flex-direction: column;
+  gap: 0.3rem;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.safetyNote strong {
+  color: var(--color-ink);
+}
+
+.accessSkeleton {
+  display: grid;
+  margin-top: 2rem;
+  gap: 0.65rem;
+}
+
+.accessSkeleton span {
+  width: 100%;
+  height: 0.8rem;
+  border-radius: var(--radius-round);
+  background: var(--color-surface-strong);
+}
+
+.accessSkeleton span:last-child {
+  width: 62%;
+}
+
+.devSwitcher {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: var(--z-overlay);
+  display: grid;
+  width: min(17rem, calc(100vw - 2rem));
+  padding: 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  gap: 0.55rem;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-soft);
+  font-size: 0.76rem;
+}
+
+.devSwitcher label {
+  display: grid;
+  grid-template-columns: 4rem 1fr;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.devSwitcher select,
+.devSwitcher button {
+  min-height: 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+@media (min-width: 50rem) {
+  .guestColumn {
+    padding-top: 2.4rem;
+  }
+
+  .connectionBar {
+    top: 1.25rem;
+  }
+}
+
+@media (max-width: 22rem) {
+  .guestNav,
+  .guestColumn {
+    width: min(100% - 1.25rem, 38rem);
+  }
+
+  .guestNav > span:last-child {
+    display: none;
+  }
+
+  .connectionBar {
+    top: 0.4rem;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .modeLabel {
+    display: none;
+  }
+
+  .conversation {
+    padding-top: 2.75rem;
+  }
+
+  .instruction {
+    padding-left: 0;
+    padding-top: 4rem;
+  }
+
+  .cameraActions {
+    flex-direction: column;
+  }
+
+  .cameraActions button,
+  .secondaryButton,
+  .accessForm button {
+    width: 100%;
+  }
+
+  .outcome {
+    padding: 1rem;
+  }
+}

@@ -19,6 +19,7 @@ coverage/
 .next/
 playwright-report/
 test-results/
+*.tsbuildinfo
 
 # Logs and operating-system files
 *.log
