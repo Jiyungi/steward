@@ -37,6 +37,7 @@ Keep the laptop powered, awake, online, and the worker terminal open. The deploy
 - Barge-in interrupted the greeting.
 - A spoken request to forget the active lock incident and discuss recipes/donkeys was stopped by the generic scope guard; the confirmation redirect reached TTS in 151 ms without replacing the incident goal.
 - Incident and voice events persisted to the Owner timeline.
+- Langfuse audit traces: normal live voice `0e3db5ed9e949080865c5e2dd363ef97`; scope-control proof `1d717b052071eaab5a4778ce9e46e1c8`. Both contain the turn agent span and nested a1 generation observations.
 - Workspace typecheck, production build, and 98 unit tests pass.
 - Landing browser checks pass on desktop and mobile, including enhanced 3D, static fallback, reduced motion, accessibility, and no-JavaScript behavior.
 - Impeccable's detector reported no findings after consolidation.
