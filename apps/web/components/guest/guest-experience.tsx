@@ -217,14 +217,21 @@ function IncidentView({
           <strong>{connection.label}</strong>
           <span>{connection.detail}</span>
         </p>
-        <span className={styles.modeLabel}>Voice</span>
+        <span className={styles.modeLabel}>
+          <span className={styles.levelMeter} aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </span>
+          Voice line
+        </span>
       </section>
 
       <article className={styles.conversation}>
         <header className={styles.incidentHeader}>
-          <p>Steward guest help</p>
-          <h1>Help is here.</h1>
-          <span>Temporary access · {frame.incident.id}</span>
+          <p>Temporary guest help</p>
+          <h1>Steward is with you.</h1>
+          <span>Incident ref · {frame.incident.id}</span>
         </header>
 
         <section className={styles.instruction} aria-labelledby="instruction-title">
@@ -315,10 +322,17 @@ export function GuestExperience({
     <main className={styles.guestShell}>
       <nav className={styles.guestNav} aria-label="Guest navigation">
         <Link href="/" className={styles.guestBrand} aria-label="Steward home">
-          <span aria-hidden="true">S</span>
+          <span className={styles.guestBrandMark} aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </span>
           Steward
         </Link>
-        <span>Guest session</span>
+        <span className={styles.sessionLabel}>
+          <i aria-hidden="true" />
+          Temporary guest
+        </span>
       </nav>
 
       <div className={styles.guestColumn}>

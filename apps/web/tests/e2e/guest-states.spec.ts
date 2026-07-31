@@ -38,7 +38,7 @@ test.describe("Guest access and fixture states", () => {
     await page.goto("/guest?access=demo-entry");
     await page.getByLabel("Booking email").fill("judge@example.com");
     await page.getByRole("button", { name: "Enter demo stay" }).click();
-    await expect(page.getByRole("heading", { level: 1, name: "Help is here." })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "Steward is with you." })).toBeVisible();
 
     await page.goto("/guest?access=expired&fixture=expiredLink");
     await expect(page.getByText("Your information remains protected.")).toBeVisible();

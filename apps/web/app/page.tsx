@@ -48,7 +48,7 @@ export default function LandingPage() {
         </div>
 
         <p className={styles.storyNote}>
-          Illustrative system view <span aria-hidden="true">·</span> Drag to inspect
+          Illustrative system view <span aria-hidden="true">·</span> Move to inspect
         </p>
       </section>
     </main>

@@ -42,30 +42,35 @@ export function DevelopmentSwitcher({
 
   return (
     <aside className={styles.devSwitcher} aria-label="Development fixture switcher">
-      <strong>Fixture controls</strong>
-      <label>
-        Access
-        <select value={access} onChange={(event) => navigate({ access: event.target.value })}>
-          {accessStates.map((state) => (
-            <option key={state} value={state}>
-              {state}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label>
-        Scenario
-        <select value={fixture} onChange={(event) => navigate({ fixture: event.target.value })}>
-          {guestFixtureNames.map((name) => (
-            <option key={name} value={name}>
-              {name}
-            </option>
-          ))}
-        </select>
-      </label>
-      <button type="button" onClick={onAdvance} disabled={frameIndex >= frameCount - 1}>
-        Next event {frameIndex + 1}/{frameCount}
-      </button>
+      <details>
+        <summary>Demo states</summary>
+        <div className={styles.devControls}>
+          <strong>Development states</strong>
+          <label>
+            Access
+            <select value={access} onChange={(event) => navigate({ access: event.target.value })}>
+              {accessStates.map((state) => (
+                <option key={state} value={state}>
+                  {state}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Scenario
+            <select value={fixture} onChange={(event) => navigate({ fixture: event.target.value })}>
+              {guestFixtureNames.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button type="button" onClick={onAdvance} disabled={frameIndex >= frameCount - 1}>
+            Next event {frameIndex + 1}/{frameCount}
+          </button>
+        </div>
+      </details>
     </aside>
   );
 }
