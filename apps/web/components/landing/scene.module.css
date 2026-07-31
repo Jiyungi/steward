@@ -5,8 +5,21 @@
   inset: 0;
 }
 
-.shell {
-  contain: layout paint style;
+.shell::before {
+  position: absolute;
+  top: 0;
+  right: -10%;
+  bottom: 0;
+  left: 20%;
+  z-index: 0;
+  background-image:
+    linear-gradient(oklch(0.68 0.08 230 / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.68 0.08 230 / 0.045) 1px, transparent 1px);
+  background-position: center;
+  background-size: 5rem 5rem;
+  content: "";
+  mask-image: radial-gradient(ellipse at 65% 48%, black 8%, transparent 69%);
+  pointer-events: none;
 }
 
 .fallback {
@@ -26,149 +39,230 @@
 }
 
 .canvasWrap canvas {
-  cursor: crosshair;
+  cursor: grab;
   touch-action: pan-y;
+}
+
+.canvasWrap canvas:active {
+  cursor: grabbing;
 }
 
 .staticComposition {
   position: absolute;
   top: 50%;
-  left: 50%;
-  width: min(90%, 42rem);
-  aspect-ratio: 1.18;
-  transform: translate(-50%, -50%);
-  transform-style: preserve-3d;
+  left: 61%;
+  width: min(84vw, 76rem);
+  height: auto;
+  overflow: visible;
+  filter: drop-shadow(0 3.5rem 5rem oklch(0.025 0.01 230 / 0.72));
+  transform: translate(-50%, -51%);
 }
 
-.propertyPlane,
-.propertyVolumeOne,
-.propertyVolumeTwo {
+.lattice {
+  fill: none;
+  opacity: 0.32;
+  stroke: #264754;
+  stroke-width: 1;
+}
+
+.propertyShadow {
+  fill: #020506;
+  opacity: 0.68;
+  transform: translateY(20px);
+}
+
+.baseTop {
+  fill: #102129;
+  stroke: #305563;
+  stroke-width: 1;
+}
+
+.baseSide {
+  fill: #0a151a;
+}
+
+.baseSideDark {
+  fill: #071116;
+}
+
+.roomOne path:first-child,
+.roomTwo path:first-child {
+  fill: #1b3944;
+}
+
+.roomOne path:nth-child(2),
+.roomTwo path:nth-child(2) {
+  fill: #122831;
+}
+
+.roomOne path:nth-child(3),
+.roomTwo path:nth-child(3) {
+  fill: #0d2027;
+}
+
+.roomEdge {
+  fill: none;
+  stroke: #356170;
+  stroke-width: 1;
+}
+
+.frameStructure {
+  fill: none;
+  opacity: 0.9;
+  stroke: #46707e;
+  stroke-width: 5;
+}
+
+.staticPath {
+  fill: none;
+  opacity: 0.24;
+  stroke-width: 2;
+}
+
+.staticPathSignal {
+  stroke: #f1b94f;
+}
+
+.staticPathAction {
+  stroke: #55b9e4;
+}
+
+.staticPathEvidence {
+  stroke: #91a3ab;
+}
+
+.fallback[data-active-stage="0"] .staticPathSignal,
+.fallback[data-active-stage="1"] .staticPathAction,
+.fallback[data-active-stage="2"] .staticPathAction,
+.fallback[data-active-stage="3"] .staticPathEvidence {
+  opacity: 0.96;
+  stroke-width: 3;
+}
+
+.staticNode {
+  fill: none;
+  stroke-width: 2;
+}
+
+.staticSignal {
+  fill: #f1b94f;
+  stroke: #f1b94f;
+}
+
+.staticSignal circle:first-child {
+  fill: none;
+  opacity: 0.36;
+}
+
+.staticSteward {
+  stroke: #55b9e4;
+}
+
+.staticSteward circle {
+  opacity: 0.38;
+}
+
+.staticSteward path {
+  fill: #55b9e4;
+}
+
+.staticAction {
+  stroke: #a9b8be;
+}
+
+.staticAction rect {
+  fill: #536a74;
+}
+
+.staticEvidence {
+  stroke: #78cbed;
+}
+
+.fallback[data-active-stage="0"] .staticSignal,
+.fallback[data-active-stage="1"] .staticSteward,
+.fallback[data-active-stage="2"] .staticAction,
+.fallback[data-active-stage="3"] .staticEvidence {
+  filter: drop-shadow(0 0 14px currentColor);
+  opacity: 1;
+}
+
+.staticLabels {
+  fill: #8aa0aa;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  letter-spacing: 0.01em;
+}
+
+.storyControl {
   position: absolute;
-  display: block;
-  border: 1px solid oklch(0.72 0.13 230 / 0.18);
-  background: oklch(0.16 0.025 230);
-  box-shadow: 0 2rem 5rem oklch(0.04 0.015 230 / 0.45);
-  transform: rotateX(62deg) rotateZ(-32deg);
+  right: max(2rem, calc((100vw - 92rem) / 2));
+  bottom: 4.1rem;
+  z-index: 12;
+  width: min(37rem, calc(100vw - 4rem));
 }
 
-.propertyPlane {
-  top: 30%;
-  left: 17%;
-  width: 66%;
-  height: 50%;
-  border-radius: 10%;
-  background: oklch(0.14 0.023 230);
+.stageButtons {
+  display: grid;
+  border-top: 1px solid oklch(0.72 0.06 230 / 0.22);
+  grid-template-columns: repeat(4, 1fr);
 }
 
-.propertyVolumeOne {
-  top: 34%;
-  left: 31%;
-  width: 28%;
-  height: 28%;
-  background: oklch(0.22 0.05 230);
-  box-shadow: 1.2rem 1.4rem 0 oklch(0.12 0.03 230);
+.stageButton {
+  position: relative;
+  min-height: 4rem;
+  padding: 0.82rem 0.75rem 0.65rem;
+  border: 0;
+  background: transparent;
+  color: oklch(0.65 0.025 230);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 590;
+  text-align: left;
+  transition: color var(--motion-quick) ease;
 }
 
-.propertyVolumeTwo {
-  top: 51%;
-  left: 56%;
-  width: 20%;
-  height: 20%;
-  background: oklch(0.2 0.042 230);
-  box-shadow: 1rem 1.2rem 0 oklch(0.11 0.027 230);
-}
-
-.signalNode,
-.stewardNode,
-.actionNode,
-.evidenceNode {
+.stageButton::before {
   position: absolute;
-  z-index: 3;
-  display: block;
-  border-radius: 50%;
-}
-
-.signalNode {
-  top: 57%;
-  left: 7%;
-  width: 0.85rem;
-  height: 0.85rem;
-  background: var(--color-signal);
-  box-shadow: 0 0 2rem oklch(0.82 0.145 78 / 0.72);
-}
-
-.stewardNode {
-  top: 28%;
-  left: 47%;
-  width: 1.45rem;
-  height: 1.45rem;
-  border-radius: 28%;
+  top: -1px;
+  right: 100%;
+  left: 0;
+  height: 2px;
   background: var(--color-primary);
-  box-shadow: 0 0 3.5rem oklch(0.72 0.13 230 / 0.72);
-  transform: rotate(45deg);
-}
-
-.actionNode {
-  top: 60%;
-  right: 6%;
-  width: 1.1rem;
-  height: 1.1rem;
-  border: 0.26rem solid oklch(0.7 0.02 230);
-  border-radius: 22%;
-}
-
-.evidenceNode {
-  top: 20%;
-  right: 11%;
-  width: 1.7rem;
-  height: 1.7rem;
-  border: 0.18rem solid var(--color-primary);
-  box-shadow: 0 0 2rem oklch(0.72 0.13 230 / 0.45);
-}
-
-.evidenceNode::after {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0.36rem;
-  height: 0.36rem;
-  border-radius: 50%;
-  background: var(--color-ink);
   content: "";
-  transform: translate(-50%, -50%);
+  transition: right var(--motion-standard) ease;
 }
 
-.trace {
-  position: absolute;
-  z-index: 2;
-  height: 1px;
-  background: currentColor;
-  opacity: 0.7;
-  transform-origin: left center;
+.stageButton[data-active="true"] {
+  color: var(--color-ink);
 }
 
-.traceOne {
-  top: 58%;
-  left: 9%;
-  width: 43%;
-  color: var(--color-signal);
-  transform: rotate(-34deg);
+.stageButton[data-active="true"]::before {
+  right: 0;
 }
 
-.traceTwo {
-  top: 32%;
-  left: 50%;
-  width: 43%;
+.stageButton:hover {
+  color: var(--color-ink);
+}
+
+.stageNumber {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: oklch(0.54 0.035 230);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  font-weight: 500;
+}
+
+.stageButton[data-active="true"] .stageNumber {
   color: var(--color-primary);
-  transform: rotate(38deg);
 }
 
-.traceThree {
-  top: 61%;
-  left: 84%;
-  width: 34%;
-  color: oklch(0.7 0.02 230);
-  transform: rotate(-78deg);
+.stageDetail {
+  min-height: 1.2rem;
+  margin: 0.15rem 0 0;
+  padding-left: 0.75rem;
+  color: oklch(0.65 0.025 230);
+  font-size: 0.76rem;
 }
 
 @keyframes scene-in {
@@ -177,9 +271,60 @@
   }
 }
 
+@media (max-width: 66rem) {
+  .staticComposition {
+    top: 33%;
+    left: 56%;
+    width: min(112vw, 66rem);
+  }
+
+  .storyControl {
+    right: 2rem;
+    bottom: 3.2rem;
+  }
+}
+
+@media (max-width: 38rem) {
+  .shell::before {
+    left: -20%;
+  }
+
+  .staticComposition {
+    top: 26%;
+    left: 57%;
+    width: 49rem;
+    max-width: none;
+  }
+
+  .storyControl {
+    right: 1rem;
+    bottom: 1.25rem;
+    width: calc(100% - 2rem);
+  }
+
+  .stageButton {
+    min-height: 3.7rem;
+    padding-inline: 0.28rem;
+    font-size: 0.76rem;
+  }
+
+  .stageNumber {
+    font-size: 0.58rem;
+  }
+
+  .stageDetail {
+    padding-left: 0.28rem;
+    font-size: 0.7rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .canvasWrap {
     opacity: 1;
     animation: none;
+  }
+
+  .stageButton::before {
+    transition: none;
   }
 }

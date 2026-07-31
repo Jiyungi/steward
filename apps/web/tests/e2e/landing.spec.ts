@@ -25,8 +25,24 @@ test.describe("landing foundation", () => {
     await expect(page.getByRole("navigation", { name: "Primary navigation" })).toBeVisible();
     await expect(page.getByRole("heading", { level: 1, name: "Every signal, carried through." })).toBeVisible();
     await expect(page.getByRole("link", { name: "Open guest demo" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Signal" })).toBeVisible();
     await expect(page.getByTestId("scene-fallback")).toBeAttached();
     await expect(page.getByTestId("three-scene")).toHaveCount(0);
+  });
+
+  test("system story changes only after an explicit selection", async ({ page }) => {
+    await page.goto("/");
+
+    const signal = page.getByRole("button", { name: "Signal" });
+    const verify = page.getByRole("button", { name: "Verify" });
+    await expect(signal).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByText("A guest need enters the system.")).toBeVisible();
+
+    await verify.click();
+    await expect(signal).toHaveAttribute("aria-pressed", "false");
+    await expect(verify).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByText("Evidence closes the loop.")).toBeVisible();
+    await expect(page.getByTestId("scene-fallback")).toHaveAttribute("data-active-stage", "3");
   });
 
   test("static fallback remains deliberate when WebGL is disabled", async ({ page }) => {

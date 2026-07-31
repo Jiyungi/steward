@@ -23,15 +23,23 @@ export default function LandingPage() {
         </Link>
         <Link className={styles.navLink} href="/guest?access=valid&fixture=resolved">
           Guest access
+          <span aria-hidden="true">↗</span>
         </Link>
       </nav>
 
       <section className={styles.hero} aria-labelledby="landing-title">
+        <div className={styles.sceneRegion}>
+          <SceneShell />
+        </div>
+
         <div className={styles.heroCopy}>
-          <p className={styles.kicker}>Property care, in motion</p>
+          <p className={styles.kicker}>
+            <span aria-hidden="true" />
+            Property care, in motion
+          </p>
           <h1 id="landing-title">Every signal, carried through.</h1>
           <p className={styles.summary}>
-            Steward listens, coordinates the right action, and closes the loop with evidence.
+            Steward coordinates the right action and closes the loop with evidence.
           </p>
           <Link className={styles.primaryAction} href="/guest?access=demo-entry&fixture=resolved">
             Open guest demo
@@ -39,18 +47,8 @@ export default function LandingPage() {
           </Link>
         </div>
 
-        <div className={styles.sceneRegion}>
-          <SceneShell />
-          <div className={styles.sceneLabels} aria-hidden="true">
-            <span className={styles.signalLabel}>Guest signal</span>
-            <span className={styles.stewardLabel}>Steward</span>
-            <span className={styles.actionLabel}>Action</span>
-            <span className={styles.evidenceLabel}>Evidence</span>
-          </div>
-        </div>
-
         <p className={styles.storyNote}>
-          An illustrative system view. Each real incident follows its own evidence.
+          Illustrative system view <span aria-hidden="true">·</span> Drag to inspect
         </p>
       </section>
     </main>

@@ -2,9 +2,7 @@
   position: relative;
   min-height: 100svh;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 74% 48%, oklch(0.19 0.048 230 / 0.56), transparent 34rem),
-    var(--color-bg);
+  background: #05090c;
   color: var(--color-ink);
   isolation: isolate;
 }
@@ -13,24 +11,38 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background-image:
-    linear-gradient(oklch(0.72 0.13 230 / 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, oklch(0.72 0.13 230 / 0.035) 1px, transparent 1px);
-  background-position: center;
-  background-size: 4.5rem 4.5rem;
+  background:
+    radial-gradient(circle at 64% 48%, oklch(0.29 0.082 230 / 0.32), transparent 31rem),
+    radial-gradient(circle at 83% 78%, oklch(0.2 0.055 245 / 0.2), transparent 24rem),
+    linear-gradient(135deg, #070c10 0%, #05090c 48%, #071117 100%);
   content: "";
-  mask-image: linear-gradient(to bottom, transparent, black 20%, black 75%, transparent);
+}
+
+.landing::after {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  background: linear-gradient(
+    to right,
+    oklch(0.07 0.012 230 / 0.84) 0%,
+    oklch(0.07 0.012 230 / 0.28) 34%,
+    transparent 62%
+  );
+  content: "";
+  pointer-events: none;
 }
 
 .nav {
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 50%;
   z-index: var(--z-nav);
   display: flex;
-  width: min(100% - 2.5rem, 86rem);
-  height: 5.5rem;
-  margin-inline: auto;
+  width: min(100% - 4rem, 92rem);
+  height: 6rem;
   align-items: center;
   justify-content: space-between;
+  transform: translateX(-50%);
 }
 
 .brand,
@@ -41,10 +53,10 @@
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.7rem;
+  gap: 0.72rem;
   font-size: 1.08rem;
-  font-weight: 650;
-  letter-spacing: -0.02em;
+  font-weight: 680;
+  letter-spacing: -0.025em;
 }
 
 .mark {
@@ -79,10 +91,18 @@
 }
 
 .navLink {
+  display: inline-flex;
+  min-height: 2.75rem;
   padding: 0.65rem 0;
-  color: var(--color-muted);
-  font-size: 0.95rem;
+  align-items: center;
+  gap: 0.55rem;
+  color: oklch(0.81 0.02 230);
+  font-size: 0.94rem;
   transition: color var(--motion-quick) ease;
+}
+
+.navLink span {
+  color: var(--color-primary);
 }
 
 .navLink:hover {
@@ -90,64 +110,76 @@
 }
 
 .hero {
-  display: grid;
-  width: min(100% - 2.5rem, 86rem);
-  min-height: calc(100svh - 5.5rem);
-  margin-inline: auto;
-  grid-template-columns: minmax(20rem, 0.72fr) minmax(30rem, 1.28fr);
-  grid-template-rows: 1fr auto;
-  align-items: center;
-  column-gap: clamp(1rem, 4vw, 5rem);
+  position: relative;
+  min-height: 100svh;
+}
+
+.sceneRegion {
+  position: absolute;
+  inset: 0;
 }
 
 .heroCopy {
-  position: relative;
-  z-index: 2;
-  align-self: center;
-  padding-block: 2rem 6rem;
+  position: absolute;
+  bottom: clamp(7.6rem, 15vh, 10.8rem);
+  left: max(2rem, calc((100vw - 92rem) / 2));
+  z-index: 10;
+  width: min(39rem, calc(100vw - 4rem));
 }
 
 .kicker {
-  margin: 0 0 1.1rem;
-  color: var(--color-primary);
-  font-size: 0.9rem;
-  font-weight: 650;
-  letter-spacing: 0.015em;
+  display: flex;
+  margin: 0 0 1.2rem;
+  align-items: center;
+  gap: 0.65rem;
+  color: oklch(0.78 0.04 230);
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+}
+
+.kicker span {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background: var(--color-signal);
+  box-shadow: 0 0 1.3rem oklch(0.82 0.145 78 / 0.72);
 }
 
 .hero h1 {
-  max-width: 9.5ch;
+  max-width: 8.8ch;
   margin: 0;
-  font-size: clamp(3.25rem, 6.4vw, 6.8rem);
-  font-weight: 520;
-  letter-spacing: -0.065em;
-  line-height: 0.92;
+  font-size: clamp(4rem, 7vw, 7.4rem);
+  font-weight: 510;
+  letter-spacing: -0.072em;
+  line-height: 0.86;
   text-wrap: balance;
 }
 
 .summary {
   max-width: 30rem;
-  margin: 1.75rem 0 0;
-  color: var(--color-muted);
-  font-size: clamp(1.03rem, 1.5vw, 1.2rem);
-  letter-spacing: -0.015em;
-  line-height: 1.6;
+  margin: 1.65rem 0 0;
+  color: oklch(0.78 0.024 230);
+  font-size: clamp(1.02rem, 1.25vw, 1.16rem);
+  letter-spacing: -0.012em;
+  line-height: 1.55;
   text-wrap: pretty;
 }
 
 .primaryAction {
   display: inline-flex;
-  min-height: 3.25rem;
+  min-height: 3.35rem;
   margin-top: 2rem;
-  padding: 0.8rem 1.15rem 0.8rem 1.3rem;
-  border: 1px solid oklch(0.84 0.11 230 / 0.5);
-  border-radius: var(--radius-round);
+  padding: 0.82rem 1.18rem 0.82rem 1.35rem;
+  border: 1px solid oklch(0.84 0.11 230 / 0.72);
+  border-radius: 0.7rem;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
   background: var(--color-primary);
-  box-shadow: 0 1rem 2.8rem oklch(0.55 0.12 230 / 0.2);
-  color: oklch(0.11 0.025 230);
-  font-weight: 700;
+  box-shadow:
+    0 0 0 1px oklch(0.96 0.03 230 / 0.08) inset,
+    0 1.4rem 3.8rem oklch(0.52 0.13 230 / 0.24);
+  color: oklch(0.12 0.03 230);
+  font-weight: 720;
   text-decoration: none;
   transition:
     background var(--motion-quick) ease,
@@ -155,7 +187,7 @@
 }
 
 .primaryAction span {
-  font-size: 1.1rem;
+  font-size: 1.08rem;
 }
 
 .primaryAction:hover {
@@ -163,113 +195,91 @@
   transform: translateY(-2px);
 }
 
-.sceneRegion {
-  position: relative;
-  min-height: min(68vw, 46rem);
-  align-self: stretch;
-}
-
-.sceneLabels {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none;
-}
-
-.sceneLabels span {
-  position: absolute;
-  padding: 0.35rem 0.62rem;
-  border-left: 1px solid currentColor;
-  color: var(--color-muted);
-  font-size: 0.76rem;
-  letter-spacing: 0.01em;
-}
-
-.signalLabel {
-  top: 58%;
-  left: 5%;
-  color: var(--color-signal) !important;
-}
-
-.stewardLabel {
-  top: 30%;
-  left: 44%;
-  color: var(--color-primary) !important;
-}
-
-.actionLabel {
-  top: 61%;
-  right: 7%;
-}
-
-.evidenceLabel {
-  top: 23%;
-  right: 9%;
-}
-
 .storyNote {
-  z-index: 3;
-  grid-column: 1 / -1;
+  position: absolute;
+  right: max(2rem, calc((100vw - 92rem) / 2));
+  bottom: 1.55rem;
+  z-index: 10;
   margin: 0;
-  padding: 0 0 1.5rem;
-  color: oklch(0.61 0.02 230);
-  font-size: 0.76rem;
-  text-align: right;
+  color: oklch(0.62 0.023 230);
+  font-size: 0.74rem;
+  letter-spacing: 0.005em;
 }
 
-@media (max-width: 58rem) {
+@media (max-width: 66rem) {
   .landing {
     overflow-y: auto;
   }
 
+  .landing::after {
+    background: linear-gradient(
+      to top,
+      oklch(0.07 0.012 230 / 0.96) 0%,
+      oklch(0.07 0.012 230 / 0.65) 38%,
+      transparent 74%
+    );
+  }
+
   .hero {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
+    min-height: 58rem;
   }
 
   .heroCopy {
-    padding: 5rem 0 1rem;
+    bottom: 10rem;
   }
 
   .hero h1 {
-    max-width: 8.5ch;
-    font-size: clamp(3.7rem, 15vw, 6.5rem);
-  }
-
-  .sceneRegion {
-    min-height: min(120vw, 39rem);
-  }
-
-  .storyNote {
-    text-align: left;
+    max-width: 8.4ch;
+    font-size: clamp(4.6rem, 12vw, 7rem);
   }
 }
 
-@media (max-width: 32rem) {
-  .nav,
-  .hero {
-    width: min(100% - 2rem, 86rem);
+@media (max-width: 38rem) {
+  .nav {
+    width: calc(100% - 2rem);
+    height: 4.6rem;
   }
 
-  .nav {
-    height: 4.5rem;
+  .navLink {
+    font-size: 0.86rem;
+  }
+
+  .hero {
+    min-height: max(100svh, 48rem);
   }
 
   .heroCopy {
-    padding-top: 3.5rem;
+    bottom: 9.8rem;
+    left: 1rem;
+    width: calc(100% - 2rem);
+  }
+
+  .kicker {
+    margin-bottom: 0.8rem;
+    font-size: 0.86rem;
   }
 
   .hero h1 {
-    font-size: clamp(3.2rem, 17vw, 5rem);
+    max-width: 9ch;
+    font-size: clamp(3.45rem, 17vw, 5.2rem);
+    line-height: 0.9;
   }
 
-  .sceneRegion {
-    min-height: 28rem;
-    margin-inline: -1rem;
+  .summary {
+    max-width: 24rem;
+    margin-top: 1.1rem;
+    font-size: 0.98rem;
+    line-height: 1.45;
   }
 
-  .sceneLabels span {
-    font-size: 0.7rem;
+  .primaryAction {
+    min-height: 3.15rem;
+    margin-top: 1.35rem;
+    padding-block: 0.72rem;
+  }
+
+  .storyNote {
+    display: none;
   }
 }
 
