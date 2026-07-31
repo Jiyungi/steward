@@ -1,4 +1,4 @@
-import { AgentDispatchClient, SipCallError, SipClient } from "livekit-server-sdk";
+import { AgentDispatchClient, RoomServiceClient, SipCallError, SipClient } from "livekit-server-sdk";
 import { z } from "zod";
 
 import type { ToolResult } from "@steward/contracts";
@@ -56,12 +56,14 @@ export interface LiveKitSipTransportConfig {
 export class LiveKitServerSipTransport implements LiveKitSipTransport {
   readonly #client: SipClient;
   readonly #dispatchClient: AgentDispatchClient;
+  readonly #roomClient: RoomServiceClient;
   readonly #agentName: string;
 
   public constructor(config: LiveKitSipTransportConfig) {
     const host = config.livekitUrl.replace(/^wss:/, "https:").replace(/^ws:/, "http:");
     this.#client = new SipClient(host, config.apiKey, config.apiSecret);
     this.#dispatchClient = new AgentDispatchClient(host, config.apiKey, config.apiSecret);
+    this.#roomClient = new RoomServiceClient(host, config.apiKey, config.apiSecret);
     this.#agentName = config.agentName;
   }
 
@@ -71,6 +73,13 @@ export class LiveKitServerSipTransport implements LiveKitSipTransport {
     incidentGoal?: string;
     vendorId: string;
   }) {
+    if ((await this.#roomClient.listRooms([request.roomName])).length === 0) {
+      await this.#roomClient.createRoom({
+        name: request.roomName,
+        emptyTimeout: 60,
+        departureTimeout: 20,
+      });
+    }
     const existing = await this.#dispatchClient.listDispatch(request.roomName);
     const current = existing.find((dispatch) => dispatch.agentName === this.#agentName);
     if (current !== undefined) return { dispatchId: current.id };

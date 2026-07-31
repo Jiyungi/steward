@@ -5,6 +5,7 @@
 
 # Local agent tooling
 /skills/
+.vercel/
 
 # Python
 __pycache__/

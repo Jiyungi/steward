@@ -1,6 +1,6 @@
 import "server-only";
 
-import { AgentDispatchClient } from "livekit-server-sdk";
+import { AgentDispatchClient, RoomServiceClient } from "livekit-server-sdk";
 
 import { getServerConfig } from "./config";
 
@@ -20,6 +20,14 @@ export async function ensureAgentDispatch(input: {
     config.LIVEKIT_API_KEY,
     config.LIVEKIT_API_SECRET,
   );
+  const rooms = new RoomServiceClient(
+    liveKitHttpUrl(config.LIVEKIT_URL),
+    config.LIVEKIT_API_KEY,
+    config.LIVEKIT_API_SECRET,
+  );
+  if ((await rooms.listRooms([input.roomName])).length === 0) {
+    await rooms.createRoom({ name: input.roomName, emptyTimeout: 60, departureTimeout: 20 });
+  }
   const existing = (await client.listDispatch(input.roomName)).find(
     (dispatch) => dispatch.agentName === config.LIVEKIT_AGENT_NAME,
   );
