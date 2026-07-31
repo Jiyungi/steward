@@ -2,7 +2,14 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  transpilePackages: ["@steward/config", "@steward/contracts", "@steward/db", "@steward/providers"],
+  poweredByHeader: false,
+  transpilePackages: [
+    "@steward/config",
+    "@steward/contracts",
+    "@steward/db",
+    "@steward/providers",
+    "@steward/ui",
+  ],
   experimental: {
     externalDir: true,
     useTypeScriptCli: true,

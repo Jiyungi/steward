@@ -1,38 +1,49 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import type { ReactNode } from "react";
 
+import "@steward/ui/tokens.css";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "Steward — incidents handled",
-  description: "A voice-first property steward that acts, verifies, and shows its work.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const requestHeaders = await headers();
+  const forwardedHost = requestHeaders.get("x-forwarded-host")?.split(",")[0]?.trim();
+  const host = forwardedHost ?? requestHeaders.get("host") ?? "localhost:3000";
+  const forwardedProtocol = requestHeaders.get("x-forwarded-proto")?.split(",")[0]?.trim();
+  const local = host.startsWith("localhost") || host.startsWith("127.0.0.1");
+  const protocol = forwardedProtocol ?? (local ? "http" : "https");
 
-const navItems = [
-  { href: "/voice", label: "Voice" },
-  { href: "/owner/demo", label: "Owner" },
-  { href: "/vendor/demo", label: "Vendor" },
-] as const;
+  let metadataBase: URL;
+  try {
+    metadataBase = new URL(`${protocol}://${host}`);
+  } catch {
+    metadataBase = new URL("http://localhost:3000");
+  }
+
+  return {
+    metadataBase,
+    title: {
+      default: "Steward — property incidents, carried through",
+      template: "%s · Steward",
+    },
+    description:
+      "A voice-first property operations system that coordinates action and verifies outcomes.",
+  };
+}
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#faf6ef" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b0807" },
+  ],
+};
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en">
-      <body>
-        <header className="site-header">
-          <Link href="/" className="wordmark" aria-label="Steward home">
-            <span className="wordmark-mark" aria-hidden="true">S</span>
-            <span>Steward</span>
-          </Link>
-          <nav aria-label="Primary navigation">
-            {navItems.map((item) => (
-              <Link key={item.href} href={item.href}>{item.label}</Link>
-            ))}
-          </nav>
-          <span className="system-state"><span aria-hidden="true" /> Demo system</span>
-        </header>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

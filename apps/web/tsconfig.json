@@ -2,10 +2,14 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "allowJs": false,
+    "declaration": false,
+    "declarationMap": false,
     "incremental": true,
+    "isolatedModules": true,
     "jsx": "preserve",
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "noPropertyAccessFromIndexSignature": false,
     "noEmit": true,
     "plugins": [{ "name": "next" }],
     "tsBuildInfoFile": ".next/cache/tsconfig.tsbuildinfo"

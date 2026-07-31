@@ -16,6 +16,8 @@
     "preflight": "pnpm --filter @steward/agent preflight",
     "typecheck": "pnpm -r --sort typecheck",
     "test": "pnpm -r --sort test",
+    "test:e2e": "pnpm --filter @steward/web test:e2e",
+    "test:e2e:update": "pnpm --filter @steward/web test:e2e:update",
     "trace:smoke": "pnpm build && pnpm --filter @steward/agent start:smoke"
   },
   "devDependencies": {
