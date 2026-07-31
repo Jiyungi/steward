@@ -1,6 +1,9 @@
 const explicitlyUnrelatedIntent =
   /\b(?:recipe|cook(?:ing)?|donkeys?|animal facts?|trivia|tell (?:me )?a joke|horoscope|poem|essay|homework|stock tip|sports score|celebrity gossip|politic(?:s|al)|video game|movie recommendation)\b/i;
 
+const ambiguousAbandonment =
+  /\b(?:forget|ignore|drop|leave|move on from|stop (?:working|talking) about)\b[^.!?\n]{0,48}\b(?:it|this|that|incident|issue|problem|request|property|room|door|lock|key|water|leak|power|electric|smoke|fire|gas|heat|air|noise|damage|access|repair|maintenance)\b/i;
+
 const incidentLanguage =
   /\b(?:property|room|door|lock|key|water|leak|power|electric|smoke|fire|gas|heat|air|noise|broken|damage|safe|safety|access|guest|stay|booking|vendor|repair|maintenance|problem|issue|happened|working|stopped|started|still|now|tried|check|show|hear|smell|see)\b/i;
 
@@ -40,7 +43,7 @@ function significantTokens(value: string): Set<string> {
 
 export type ScopeDecision =
   | { status: "relevant"; reason: "incident-language" | "goal-overlap" | "continuation" }
-  | { status: "off-topic"; reason: "explicit-unrelated-intent" }
+  | { status: "off-topic"; reason: "explicit-unrelated-intent" | "ambiguous-abandonment" }
   | { status: "uncertain"; reason: "insufficient-signal" };
 
 export function evaluateScope(userText: string, activeGoal?: string): ScopeDecision {
@@ -48,6 +51,10 @@ export function evaluateScope(userText: string, activeGoal?: string): ScopeDecis
 
   if (explicitlyUnrelatedIntent.test(normalized)) {
     return { status: "off-topic", reason: "explicit-unrelated-intent" };
+  }
+
+  if (activeGoal && ambiguousAbandonment.test(normalized)) {
+    return { status: "off-topic", reason: "ambiguous-abandonment" };
   }
 
   if (incidentLanguage.test(normalized)) {
@@ -69,6 +76,11 @@ export function evaluateScope(userText: string, activeGoal?: string): ScopeDecis
   return { status: "uncertain", reason: "insufficient-signal" };
 }
 
-export function buildScopeRedirect(): string {
+export function buildScopeRedirect(
+  reason: Extract<ScopeDecision, { status: "off-topic" }>["reason"],
+): string {
+  if (reason === "ambiguous-abandonment") {
+    return "Before we switch away, do you mean the property issue is resolved, or do you still need help with it?";
+  }
   return "I can help with that another time, but I want to stay with the property issue until you’re safe and we know the next step. What changed since the last thing we tried?";
 }

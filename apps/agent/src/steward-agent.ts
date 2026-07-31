@@ -61,7 +61,7 @@ export class StewardAgent extends voice.Agent {
       safeLabel: "Returning to the active incident",
       occurredAt: new Date().toISOString(),
     });
-    this.session.say(buildScopeRedirect(), {
+    this.session.say(buildScopeRedirect(scope.reason), {
       allowInterruptions: true,
       addToChatCtx: true,
     });

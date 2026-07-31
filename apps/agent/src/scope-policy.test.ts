@@ -14,6 +14,17 @@ describe("evaluateScope", () => {
   });
 
   it.each([
+    "Actually, forget the lock.",
+    "Ignore this property problem for now",
+    "Let's move on from the access issue",
+  ])("requires confirmation before abandoning an active incident: %s", (turn) => {
+    expect(evaluateScope(turn, goal)).toEqual({
+      status: "off-topic",
+      reason: "ambiguous-abandonment",
+    });
+  });
+
+  it.each([
     "The door is still not opening",
     "Okay, I tried that",
     "Can you check a vendor for this issue?",
