@@ -16,6 +16,9 @@ __pycache__/
 node_modules/
 dist/
 coverage/
+.next/
+playwright-report/
+test-results/
 
 # Logs and operating-system files
 *.log

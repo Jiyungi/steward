@@ -1,0 +1,180 @@
+.shell,
+.fallback,
+.canvasWrap {
+  position: absolute;
+  inset: 0;
+}
+
+.shell {
+  contain: layout paint style;
+}
+
+.fallback {
+  z-index: 1;
+  margin: 0;
+}
+
+.canvasWrap {
+  z-index: 2;
+  opacity: 0;
+  animation: scene-in var(--motion-spatial) ease forwards;
+}
+
+.canvasWrap canvas {
+  cursor: crosshair;
+  touch-action: pan-y;
+}
+
+.staticComposition {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(90%, 42rem);
+  aspect-ratio: 1.18;
+  transform: translate(-50%, -50%);
+  transform-style: preserve-3d;
+}
+
+.propertyPlane,
+.propertyVolumeOne,
+.propertyVolumeTwo {
+  position: absolute;
+  display: block;
+  border: 1px solid oklch(0.72 0.13 230 / 0.18);
+  background: oklch(0.16 0.025 230);
+  box-shadow: 0 2rem 5rem oklch(0.04 0.015 230 / 0.45);
+  transform: rotateX(62deg) rotateZ(-32deg);
+}
+
+.propertyPlane {
+  top: 30%;
+  left: 17%;
+  width: 66%;
+  height: 50%;
+  border-radius: 10%;
+  background: oklch(0.14 0.023 230);
+}
+
+.propertyVolumeOne {
+  top: 34%;
+  left: 31%;
+  width: 28%;
+  height: 28%;
+  background: oklch(0.22 0.05 230);
+  box-shadow: 1.2rem 1.4rem 0 oklch(0.12 0.03 230);
+}
+
+.propertyVolumeTwo {
+  top: 51%;
+  left: 56%;
+  width: 20%;
+  height: 20%;
+  background: oklch(0.2 0.042 230);
+  box-shadow: 1rem 1.2rem 0 oklch(0.11 0.027 230);
+}
+
+.signalNode,
+.stewardNode,
+.actionNode,
+.evidenceNode {
+  position: absolute;
+  z-index: 3;
+  display: block;
+  border-radius: 50%;
+}
+
+.signalNode {
+  top: 57%;
+  left: 7%;
+  width: 0.85rem;
+  height: 0.85rem;
+  background: var(--color-signal);
+  box-shadow: 0 0 2rem oklch(0.82 0.145 78 / 0.72);
+}
+
+.stewardNode {
+  top: 28%;
+  left: 47%;
+  width: 1.45rem;
+  height: 1.45rem;
+  border-radius: 28%;
+  background: var(--color-primary);
+  box-shadow: 0 0 3.5rem oklch(0.72 0.13 230 / 0.72);
+  transform: rotate(45deg);
+}
+
+.actionNode {
+  top: 60%;
+  right: 6%;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 0.26rem solid oklch(0.7 0.02 230);
+  border-radius: 22%;
+}
+
+.evidenceNode {
+  top: 20%;
+  right: 11%;
+  width: 1.7rem;
+  height: 1.7rem;
+  border: 0.18rem solid var(--color-primary);
+  box-shadow: 0 0 2rem oklch(0.72 0.13 230 / 0.45);
+}
+
+.evidenceNode::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.36rem;
+  height: 0.36rem;
+  border-radius: 50%;
+  background: var(--color-ink);
+  content: "";
+  transform: translate(-50%, -50%);
+}
+
+.trace {
+  position: absolute;
+  z-index: 2;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.7;
+  transform-origin: left center;
+}
+
+.traceOne {
+  top: 58%;
+  left: 9%;
+  width: 43%;
+  color: var(--color-signal);
+  transform: rotate(-34deg);
+}
+
+.traceTwo {
+  top: 32%;
+  left: 50%;
+  width: 43%;
+  color: var(--color-primary);
+  transform: rotate(38deg);
+}
+
+.traceThree {
+  top: 61%;
+  left: 84%;
+  width: 34%;
+  color: oklch(0.7 0.02 230);
+  transform: rotate(-78deg);
+}
+
+@keyframes scene-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .canvasWrap {
+    opacity: 1;
+    animation: none;
+  }
+}
