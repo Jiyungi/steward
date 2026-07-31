@@ -60,83 +60,49 @@
 
 .lattice {
   fill: none;
-  opacity: 0.32;
-  stroke: #264754;
+  opacity: 0.16;
+  stroke: #4d92b8;
   stroke-width: 1;
 }
 
-.propertyShadow {
-  fill: #020506;
-  opacity: 0.68;
-  transform: translateY(20px);
-}
-
-.baseTop {
-  fill: #102129;
-  stroke: #305563;
+.massing rect {
+  fill: #16303f;
+  stroke: #23485c;
   stroke-width: 1;
 }
 
-.baseSide {
-  fill: #0a151a;
+.windowdark {
+  fill: #0b1a25;
 }
 
-.baseSideDark {
-  fill: #071116;
+.windowdim {
+  fill: #2c6f92;
 }
 
-.roomOne path:first-child,
-.roomTwo path:first-child {
-  fill: #1b3944;
+.windowcool {
+  fill: #8fd4f5;
 }
 
-.roomOne path:nth-child(2),
-.roomTwo path:nth-child(2) {
-  fill: #122831;
-}
-
-.roomOne path:nth-child(3),
-.roomTwo path:nth-child(3) {
-  fill: #0d2027;
-}
-
-.roomEdge {
-  fill: none;
-  stroke: #356170;
-  stroke-width: 1;
-}
-
-.frameStructure {
-  fill: none;
-  opacity: 0.9;
-  stroke: #46707e;
-  stroke-width: 5;
+.windowwarm {
+  fill: #c98b45;
 }
 
 .staticPath {
   fill: none;
-  opacity: 0.24;
+  opacity: 0.1;
   stroke-width: 2;
 }
 
 .staticPathSignal {
-  stroke: #f1b94f;
+  stroke: #ffab3d;
 }
 
 .staticPathAction {
-  stroke: #55b9e4;
+  stroke: #42a9dc;
 }
 
 .staticPathEvidence {
-  stroke: #91a3ab;
-}
-
-.fallback[data-active-stage="0"] .staticPathSignal,
-.fallback[data-active-stage="1"] .staticPathAction,
-.fallback[data-active-stage="2"] .staticPathAction,
-.fallback[data-active-stage="3"] .staticPathEvidence {
-  opacity: 0.96;
-  stroke-width: 3;
+  stroke: #c9f2ff;
 }
 
 .staticNode {
@@ -144,53 +110,71 @@
   stroke-width: 2;
 }
 
-.staticSignal {
-  fill: #f1b94f;
-  stroke: #f1b94f;
+.staticSignal rect {
+  fill: #ffd9a0;
 }
 
-.staticSignal circle:first-child {
+.staticVerified rect {
+  fill: #c9f2ff;
+}
+
+.voiceRing {
   fill: none;
-  opacity: 0.36;
+  opacity: 0.28;
+  stroke: #ffab3d;
+  stroke-width: 1.5;
+}
+
+.staticVerified .voiceRing {
+  stroke: #c9f2ff;
 }
 
 .staticSteward {
-  stroke: #55b9e4;
+  stroke: #42a9dc;
 }
 
 .staticSteward circle {
-  opacity: 0.38;
+  opacity: 0.5;
 }
 
 .staticSteward path {
-  fill: #55b9e4;
+  opacity: 0.85;
+  stroke: #c9f2ff;
 }
 
 .staticAction {
-  stroke: #a9b8be;
+  stroke: #42a9dc;
 }
 
 .staticAction rect {
-  fill: #536a74;
+  fill: #101f2a;
 }
 
-.staticEvidence {
-  stroke: #78cbed;
+.staticAction ellipse {
+  opacity: 0.55;
 }
 
-.fallback[data-active-stage="0"] .staticSignal,
+.nodeCore {
+  fill: #c9f2ff;
+  stroke: none;
+}
+
+.fallback[data-active-stage="0"] .staticSignal .voiceRing {
+  opacity: 0.62;
+}
+
 .fallback[data-active-stage="1"] .staticSteward,
-.fallback[data-active-stage="2"] .staticAction,
-.fallback[data-active-stage="3"] .staticEvidence {
+.fallback[data-active-stage="2"] .staticAction {
   filter: drop-shadow(0 0 14px currentColor);
   opacity: 1;
 }
 
-.staticLabels {
-  fill: #8aa0aa;
-  font-family: var(--font-sans);
-  font-size: 13px;
-  letter-spacing: 0.01em;
+.fallback[data-active-stage="0"] .staticPathSignal,
+.fallback[data-active-stage="1"] .staticPathSignal,
+.fallback[data-active-stage="2"] .staticPathAction,
+.fallback[data-active-stage="3"] .staticPathEvidence {
+  opacity: 0.9;
+  stroke-width: 3;
 }
 
 .storyControl {
