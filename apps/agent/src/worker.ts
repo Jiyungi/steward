@@ -1,14 +1,16 @@
 import { defineAgent, type JobContext, llm, voice } from "@livekit/agents";
 import * as deepgram from "@livekit/agents-plugin-deepgram";
-import * as openai from "@livekit/agents-plugin-openai";
 import { RoomEvent } from "@livekit/rtc-node";
-import { loadAgentRuntimeConfig, loadDatabaseConfig } from "@steward/config";
+import { loadAgentRuntimeConfig, loadDatabaseConfig, loadProviderConfig } from "@steward/config";
 import { randomUUID } from "node:crypto";
 
 import {
   ContractEventPublisher,
   LiveKitEventTransport,
 } from "./events.js";
+import { AgentActionRuntime, createAgentActionTools } from "./action-tools.js";
+import { probeA1RuntimeCapabilities } from "./a1-capabilities.js";
+import { A1ResponsesLLM } from "./a1-responses-llm.js";
 import { AgentIncidentPersistence } from "./incident-persistence.js";
 import { VoiceLatencyCollector } from "./latency.js";
 import { INTERRUPTIBLE_GREETING } from "./prompt.js";
@@ -23,6 +25,7 @@ interface RoomMetadata {
   incidentId?: string;
   channel?: VoiceChannel;
   incidentGoal?: string;
+  vendorId?: string;
 }
 
 function readRoomMetadata(metadata: string | undefined): RoomMetadata {
@@ -40,6 +43,9 @@ function readRoomMetadata(metadata: string | undefined): RoomMetadata {
         : {}),
       ...(typeof parsed["incidentGoal"] === "string"
         ? { incidentGoal: parsed["incidentGoal"] }
+        : {}),
+      ...(typeof parsed["vendorId"] === "string"
+        ? { vendorId: parsed["vendorId"] }
         : {}),
     };
   } catch {
@@ -62,6 +68,7 @@ function incidentIdFromRoomName(roomName: string): string | undefined {
 
 async function runStewardSession(ctx: JobContext): Promise<void> {
   const config = loadAgentRuntimeConfig();
+  const capabilities = await probeA1RuntimeCapabilities(config);
   await ctx.connect();
   const participant = await ctx.waitForParticipant();
   const metadata = {
@@ -77,6 +84,7 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
   const channel = channelForRoom(metadata, roomName);
   const correlationId = randomUUID();
   const databaseConfig = loadDatabaseConfig();
+  const providerConfig = loadProviderConfig();
   const persistence = new AgentIncidentPersistence({
     url: databaseConfig.NEXT_PUBLIC_SUPABASE_URL,
     secretKey: databaseConfig.SUPABASE_SECRET_KEY,
@@ -102,6 +110,7 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
     config,
   });
   const speech = new HumanSpeechController();
+  const actionRuntime = new AgentActionRuntime(incidentId, databaseConfig, providerConfig);
   const frameSource = new LiveKitVisionFrameSource(ctx.room, participant);
   let session!: voice.AgentSession<{
     incidentId: string;
@@ -166,17 +175,7 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
       eotTimeoutMs: 2_500,
       tags: ["steward", channel],
     }),
-    llm: new openai.responses.LLM({
-      apiKey: config.OPENAI_API_KEY,
-      baseURL: config.OPENAI_BASE_URL,
-      model: config.OPENAI_MODEL,
-      useWebSocket: false,
-      store: false,
-      parallelToolCalls: false,
-      strictToolSchema: false,
-      maxOutputTokens: 256,
-      metadata: { application: "steward", channel },
-    }),
+    llm: new A1ResponsesLLM(config),
     tts: new deepgram.TTS({
       apiKey: config.DEEPGRAM_API_KEY,
       model: config.DEEPGRAM_TTS_MODEL,
@@ -211,6 +210,16 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
     useTtsAlignedTranscript: true,
   });
 
+  const actionTools = createAgentActionTools({
+    runtime: actionRuntime,
+    channel,
+    ...(metadata.vendorId === undefined ? {} : { vendorId: metadata.vendorId }),
+    speech,
+    speak: (text) => {
+      session.say(text, { allowInterruptions: true, addToChatCtx: false });
+    },
+  });
+
   wireSessionEvents({ session, events, latency, tracer });
 
   ctx.room.on(RoomEvent.DataReceived, (payload, _participant, _kind, topic) => {
@@ -236,7 +245,10 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
   });
 
   await session.start({
-    agent: new StewardAgent(events, vision, metadata.incidentGoal),
+    agent: new StewardAgent(events, vision, metadata.incidentGoal, actionTools, {
+      enableVision: channel === "web" && capabilities.visionInput,
+      audience: channel === "vendor-call" ? "vendor" : "guest",
+    }),
     room: ctx.room,
     record: {
       audio: false,
@@ -248,7 +260,11 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
   });
   await transport.flush();
 
-  session.say(INTERRUPTIBLE_GREETING, {
+  session.say(
+    channel === "vendor-call"
+      ? "Hi, this is Steward calling about a property service request. Are you available to discuss the job?"
+      : INTERRUPTIBLE_GREETING,
+  {
     allowInterruptions: true,
     addToChatCtx: true,
   });

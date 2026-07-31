@@ -50,6 +50,9 @@ importers:
       '@steward/observability':
         specifier: workspace:*
         version: link:../../packages/observability
+      '@steward/providers':
+        specifier: workspace:*
+        version: link:../../packages/providers
       dotenv:
         specifier: 17.4.2
         version: 17.4.2

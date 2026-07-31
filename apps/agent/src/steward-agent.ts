@@ -2,6 +2,7 @@ import {
   StopResponse,
   type ChatContext,
   type ChatMessage,
+  llm,
   voice,
 } from "@livekit/agents";
 
@@ -12,19 +13,27 @@ import { createVisionRequestTool, type VisionCoordinator } from "./vision.js";
 
 export class StewardAgent extends voice.Agent {
   #activeGoal: string | undefined;
+  readonly #audience: "guest" | "vendor";
 
   constructor(
     private readonly events: ContractEventPublisher,
     vision: VisionCoordinator,
     initialGoal?: string,
+    actionTools: llm.FunctionTool[] = [],
+    options: { enableVision?: boolean; audience?: "guest" | "vendor" } = {},
   ) {
+    const audience = options.audience ?? "guest";
     super({
       instructions: buildStewardInstructions(
-        initialGoal ? { incidentGoal: initialGoal } : {},
+        initialGoal ? { incidentGoal: initialGoal, audience } : { audience },
       ),
-      tools: [createVisionRequestTool(vision)],
+      tools: [
+        ...(options.enableVision === false ? [] : [createVisionRequestTool(vision)]),
+        ...actionTools,
+      ],
     });
     this.#activeGoal = initialGoal;
+    this.#audience = audience;
   }
 
   override async onUserTurnCompleted(
@@ -37,7 +46,7 @@ export class StewardAgent extends voice.Agent {
     if (!this.#activeGoal) {
       this.#activeGoal = transcript;
       await this.updateInstructions(
-        buildStewardInstructions({ incidentGoal: transcript }),
+        buildStewardInstructions({ incidentGoal: transcript, audience: this.#audience }),
       );
       return;
     }

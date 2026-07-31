@@ -23,6 +23,7 @@
     "@steward/contracts": "workspace:*",
     "@steward/db": "workspace:*",
     "@steward/observability": "workspace:*",
+    "@steward/providers": "workspace:*",
     "dotenv": "17.4.2",
     "openai": "7.3.0"
   }

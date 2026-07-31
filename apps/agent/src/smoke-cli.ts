@@ -28,6 +28,11 @@ async function main(): Promise<void> {
 
     console.log(`Langfuse trace sent: ${result.traceId}`);
     console.log(`a1 Responses request completed: ${result.responseId}`);
+    console.log(`a1 streaming supported: ${result.streamingSupported}`);
+    if (result.streamingResponseId !== null) {
+      console.log(`a1 streaming gate completed: ${result.streamingResponseId}`);
+    }
+    console.log(`a1 typed-tool gate completed: ${result.toolResponseId}`);
   } finally {
     await observability.shutdown();
   }

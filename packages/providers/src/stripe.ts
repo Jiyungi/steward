@@ -73,7 +73,7 @@ export class StripeSdkTransport implements StripeTransport {
   readonly #paymentMethod: string;
 
   public constructor(config: StripeSdkTransportConfig) {
-    if (!config.secretKey.startsWith("sk_test_")) {
+    if (!config.secretKey.startsWith("sk_test_") && !config.secretKey.startsWith("sk_sandbox_")) {
       throw new Error("Steward only permits Stripe test-mode secret keys");
     }
     this.#stripe = new Stripe(config.secretKey, { maxNetworkRetries: 2 });
