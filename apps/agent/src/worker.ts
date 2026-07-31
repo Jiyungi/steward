@@ -13,7 +13,7 @@ import { probeA1RuntimeCapabilities } from "./a1-capabilities.js";
 import { A1ResponsesLLM } from "./a1-responses-llm.js";
 import { AgentIncidentPersistence } from "./incident-persistence.js";
 import { VoiceLatencyCollector } from "./latency.js";
-import { INTERRUPTIBLE_GREETING } from "./prompt.js";
+import { buildInterruptibleGreeting } from "./prompt.js";
 import { wireSessionEvents } from "./session-events.js";
 import { HumanSpeechController } from "./speech-controller.js";
 import { StewardAgent } from "./steward-agent.js";
@@ -171,9 +171,9 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
     stt: new deepgram.STTv2({
       apiKey: config.DEEPGRAM_API_KEY,
       model: config.DEEPGRAM_STT_MODEL,
-      eagerEotThreshold: 0.4,
-      eotThreshold: 0.7,
-      eotTimeoutMs: 2_500,
+      eagerEotThreshold: 0.35,
+      eotThreshold: 0.65,
+      eotTimeoutMs: 1_500,
       tags: ["steward", channel],
     }),
     llm: new A1ResponsesLLM(config),
@@ -186,8 +186,8 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
       turnDetection: "stt",
       endpointing: {
         mode: "dynamic",
-        minDelay: 250,
-        maxDelay: 2_500,
+        minDelay: 200,
+        maxDelay: 1_500,
         alpha: 0.9,
       },
       interruption: {
@@ -202,7 +202,7 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
       },
       preemptiveGeneration: {
         enabled: true,
-        preemptiveTts: false,
+        preemptiveTts: true,
         maxSpeechDuration: 10_000,
         maxRetries: 2,
       },
@@ -264,7 +264,7 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
   session.say(
     channel === "vendor-call"
       ? "Hi, this is Steward calling about a property service request. Are you available to discuss the job?"
-      : INTERRUPTIBLE_GREETING,
+      : buildInterruptibleGreeting(metadata.incidentGoal),
   {
     allowInterruptions: true,
     addToChatCtx: true,
