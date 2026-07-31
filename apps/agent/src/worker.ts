@@ -173,7 +173,7 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
       model: config.DEEPGRAM_STT_MODEL,
       eagerEotThreshold: 0.35,
       eotThreshold: 0.65,
-      eotTimeoutMs: 1_500,
+      eotTimeoutMs: 1_000,
       tags: ["steward", channel],
     }),
     llm: new A1ResponsesLLM(config),
@@ -182,12 +182,19 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
       model: config.DEEPGRAM_TTS_MODEL,
       speed: config.DEEPGRAM_TTS_SPEED,
     }),
+    connOptions: {
+      llmConnOptions: {
+        maxRetry: 1,
+        retryIntervalMs: 250,
+        timeoutMs: 6_000,
+      },
+    },
     turnHandling: {
       turnDetection: "stt",
       endpointing: {
         mode: "dynamic",
         minDelay: 200,
-        maxDelay: 1_500,
+        maxDelay: 1_000,
         alpha: 0.9,
       },
       interruption: {
@@ -201,8 +208,11 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
         backchannelBoundary: [700, 700],
       },
       preemptiveGeneration: {
-        enabled: true,
-        preemptiveTts: true,
+        // The a1 Responses gateway is non-streaming. Speculative requests are
+        // canceled whenever Flux refines an interim transcript, which creates
+        // duplicate full requests and rate-limit pressure instead of saving time.
+        enabled: false,
+        preemptiveTts: false,
         maxSpeechDuration: 10_000,
         maxRetries: 2,
       },

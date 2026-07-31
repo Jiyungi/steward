@@ -99,6 +99,16 @@ class A1ResponsesStream extends llm.LLMStream {
         });
       }
     } catch (error) {
+      // LiveKit cancels speculative generations when Flux refines an interim
+      // transcript. That is expected control flow, not a provider failure to
+      // retry. Retrying the canceled request added several seconds of silence.
+      if (
+        this.abortController.signal.aborted ||
+        (error instanceof Error &&
+          (error.name === "AbortError" || error.message === "Request was aborted."))
+      ) {
+        return;
+      }
       if (error instanceof OpenAI.APIConnectionTimeoutError) {
         throw new APITimeoutError({ options: { retryable: true } });
       }

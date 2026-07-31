@@ -30,8 +30,17 @@ const EMPTY: OwnerSnapshot = { incident: null, events: [], vendors: [], evidence
 
 async function jsonRequest<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, init);
-  const body = await response.json() as T & { error?: { message?: string } };
-  if (!response.ok) throw new Error(body.error?.message ?? "The action could not be completed.");
+  const body = await response.json() as T & {
+    error?: { message?: string };
+    result?: { error?: { safeMessage?: string } };
+  };
+  if (!response.ok) {
+    throw new Error(
+      body.result?.error?.safeMessage ??
+      body.error?.message ??
+      "The action could not be completed.",
+    );
+  }
   return body;
 }
 
