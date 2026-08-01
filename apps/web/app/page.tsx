@@ -12,8 +12,8 @@ export default function LandingPage() {
           <StewardLogo markClassName={styles.mark} />
         </Link>
         <div className={styles.navLinks}>
-          <Link className={styles.navLink} href="/guest?access=valid&fixture=connected">Guest</Link>
-          <Link className={styles.navLink} href="/owner/demo">Owner</Link>
+          <Link className={styles.navLink} href="/owner">Owner workspace</Link>
+          <Link className={styles.navLink} href="/vendor/demo">Vendor workspace</Link>
         </div>
       </nav>
 
@@ -28,8 +28,8 @@ export default function LandingPage() {
             We help your guest, contact approved vendors, and follow the job through.
           </p>
           <div className={styles.actions}>
-            <Link className={styles.primaryAction} href="/voice">Talk to Steward</Link>
-            <Link className={styles.secondaryAction} href="/owner/demo">Open owner view</Link>
+            <Link className={styles.primaryAction} href="/voice">Try the live call</Link>
+            <Link className={styles.secondaryAction} href="/owner">Open owner workspace</Link>
           </div>
         </div>
       </section>

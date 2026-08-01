@@ -53,6 +53,7 @@ a { color: inherit; }
 }
 
 .wordmark { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 760; letter-spacing: -0.02em; }
+.wordmark-logo { width: 30px; height: 30px; color: var(--primary-strong); }
 .wordmark-mark { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 9px; background: var(--ink); color: white; font-size: 14px; }
 .site-header nav { display: flex; align-items: center; gap: 24px; }
 .site-header nav a { color: var(--muted); font-size: 14px; text-decoration: none; font-weight: 620; }
@@ -172,4 +173,26 @@ a { color: inherit; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+}
+
+.owner-stack { margin-top: 36px; }
+.owner-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 28px; }
+.owner-summary .metric-line { border-bottom: 0; }
+.attention-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+.attention-card { padding: 20px 22px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.attention-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+.attention-head strong { font-size: 17px; letter-spacing: -.01em; }
+.attention-goal { margin: 8px 0 14px; color: var(--muted); line-height: 1.5; }
+.attention-card, .timeline li > div { min-width: 0; }
+.attention-goal, .timeline p { overflow-wrap: anywhere; }
+.attention-card .metric-line:last-child { border-bottom: 0; padding-bottom: 0; }
+.priority-label { color: var(--primary-strong); font-weight: 700; }
+.priority-label[data-risk="high"], .priority-label[data-risk="emergency"] { color: var(--danger); }
+.timeline-meta { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; }
+.demo-link { display: inline-block; margin-top: 26px; color: var(--muted); font-size: 13px; }
+.notice-action { margin-inline-start: 12px; border: 0; border-bottom: 1px solid currentColor; padding: 0; color: inherit; background: transparent; font: inherit; font-weight: 700; cursor: pointer; }
+
+@media (max-width: 800px) {
+  .owner-summary { grid-template-columns: 1fr; }
+  .owner-summary .metric-line { border-bottom: 1px solid var(--line); }
 }
