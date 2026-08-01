@@ -29,10 +29,12 @@ export function wireSessionEvents<UserData>(options: {
   events: ContractEventPublisher;
   latency: VoiceLatencyCollector;
   tracer: VoiceTurnTracer;
+  onUnrecoverableLlmError?: () => void;
 }): void {
   let activeTurnId: string | undefined;
   let activeResponseId: string | undefined;
   let agentState: AgentState = "initializing";
+  let failureAnnounced = false;
 
   const safely = (operation: () => Promise<void>): void => {
     void operation().catch((error: unknown) => {
@@ -154,11 +156,20 @@ export function wireSessionEvents<UserData>(options: {
   });
 
   options.session.on(AgentSessionEventTypes.Error, (event) => {
+    const recoverable = "recoverable" in event.error ? event.error.recoverable : undefined;
     console.error("voice_runtime_error", {
       incidentId: options.events.incidentId,
       errorType: event.error.type,
-      recoverable: "recoverable" in event.error ? event.error.recoverable : undefined,
+      recoverable,
     });
+    if (
+      event.error.type === "llm_error" &&
+      recoverable === false &&
+      !failureAnnounced
+    ) {
+      failureAnnounced = true;
+      options.onUnrecoverableLlmError?.();
+    }
   });
 
   options.session.on(AgentSessionEventTypes.Close, (event) => {

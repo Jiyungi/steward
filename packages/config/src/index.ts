@@ -58,6 +58,11 @@ export const agentRuntimeConfigSchema = z.object({
   OPENAI_API_KEY: nonEmptyString,
   OPENAI_BASE_URL: z.url(),
   OPENAI_MODEL: nonEmptyString,
+  VOICE_LLM_MODEL: nonEmptyString.default("google/gemma-4-31b-it"),
+  VOICE_LLM_VISION_ENABLED: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((value) => value === "true"),
   DEEPGRAM_API_KEY: nonEmptyString,
   DEEPGRAM_STT_MODEL: nonEmptyString,
   DEEPGRAM_TTS_MODEL: nonEmptyString,

@@ -14,11 +14,9 @@ const config = loadAgentRuntimeConfig();
 const observability = initializeObservability();
 
 try {
-  const [agents, deepgram, { runTraceSmoke }, { A1ResponsesLLM }] = await Promise.all([
+  const [agents, deepgram] = await Promise.all([
     import("@livekit/agents"),
     import("@livekit/agents-plugin-deepgram"),
-    import("./smoke.js"),
-    import("./a1-responses-llm.js"),
   ]);
   agents.initializeLogger({ pretty: true, level: "info" });
 
@@ -32,7 +30,14 @@ try {
     model: config.DEEPGRAM_TTS_MODEL,
     speed: config.DEEPGRAM_TTS_SPEED,
   });
-  const runtimeLlm = new A1ResponsesLLM(config);
+  const runtimeLlm = new agents.inference.LLM({
+    model: config.VOICE_LLM_MODEL,
+    modelOptions: {
+      temperature: 0.2,
+      max_completion_tokens: 32,
+    },
+  });
+  const startedAt = performance.now();
   const runtimeResponse = await runtimeLlm.chat({
     chatCtx: new agents.llm.ChatContext([
       agents.llm.ChatMessage.create({
@@ -41,20 +46,52 @@ try {
       }),
     ]),
   }).collect();
-  if (!runtimeResponse.text.trim()) throw new Error("The a1 LiveKit compatibility adapter returned no text.");
-  const smoke = await runTraceSmoke(config);
-  await runtimeLlm.aclose();
+  const latencyMs = Math.round(performance.now() - startedAt);
+  if (!runtimeResponse.text.trim()) {
+    throw new Error("The LiveKit streaming inference model returned no text.");
+  }
+  const healthTool = agents.llm.tool({
+    name: "report_runtime_health",
+    description: "Report the requested harmless runtime health word.",
+    parameters: {
+      type: "object",
+      additionalProperties: false,
+      required: ["status"],
+      properties: {
+        status: { type: "string", enum: ["online"] },
+      },
+    },
+    execute: async () => ({ accepted: true }),
+  });
+  const toolStartedAt = performance.now();
+  const toolResponse = await runtimeLlm.chat({
+    chatCtx: new agents.llm.ChatContext([
+      agents.llm.ChatMessage.create({
+        role: "user",
+        content: ["Use the health tool to report online."],
+      }),
+    ]),
+    toolCtx: [healthTool],
+    toolChoice: {
+      type: "function",
+      function: { name: "report_runtime_health" },
+    },
+  }).collect();
+  const toolLatencyMs = Math.round(performance.now() - toolStartedAt);
+  if (toolResponse.toolCalls[0]?.name !== "report_runtime_health") {
+    throw new Error("The LiveKit streaming inference model did not return the required tool call.");
+  }
   await observability.forceFlush();
 
   console.log("Steward agent preflight passed", {
-    responseId: smoke.responseId,
-    streamingResponseId: smoke.streamingResponseId,
-    streamingSupported: smoke.streamingSupported,
-    toolResponseId: smoke.toolResponseId,
-    traceId: smoke.traceId,
+    response: runtimeResponse.text.trim(),
+    latencyMs,
+    toolLatencyMs,
+    toolName: toolResponse.toolCalls[0].name,
     stt: stt.label,
     tts: tts.label,
-    reasoningProvider: "a1mobile-responses",
+    reasoningProvider: "livekit-inference",
+    reasoningModel: config.VOICE_LLM_MODEL,
     runtimeAdapter: runtimeLlm.label(),
   });
 } finally {

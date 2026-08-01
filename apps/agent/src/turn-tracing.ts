@@ -37,7 +37,7 @@ export class VoiceTurnTracer {
         sessionId: this.context.sessionId,
         channel: this.context.channel,
         feature: "voice-turn",
-        tags: ["livekit", "deepgram", "a1-responses"],
+        tags: ["livekit", "deepgram", "livekit-inference"],
         ...(this.context.config.LANGFUSE_RELEASE
           ? { version: this.context.config.LANGFUSE_RELEASE }
           : {}),
@@ -47,7 +47,7 @@ export class VoiceTurnTracer {
         responseId,
         assistantResponse,
         latencyMs: Math.round(performance.now() - turn.startedAt),
-        model: this.context.config.OPENAI_MODEL,
+        model: this.context.config.VOICE_LLM_MODEL,
       }),
       summarizeOutput: (result) => ({
         responseId: result.responseId,

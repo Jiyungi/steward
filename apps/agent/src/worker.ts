@@ -1,4 +1,4 @@
-import { defineAgent, type JobContext, llm, voice } from "@livekit/agents";
+import { defineAgent, inference, type JobContext, llm, voice } from "@livekit/agents";
 import * as deepgram from "@livekit/agents-plugin-deepgram";
 import { RoomEvent } from "@livekit/rtc-node";
 import { loadAgentRuntimeConfig, loadDatabaseConfig, loadProviderConfig } from "@steward/config";
@@ -9,8 +9,6 @@ import {
   LiveKitEventTransport,
 } from "./events.js";
 import { AgentActionRuntime, createAgentActionTools } from "./action-tools.js";
-import { probeA1RuntimeCapabilities } from "./a1-capabilities.js";
-import { A1ResponsesLLM } from "./a1-responses-llm.js";
 import { AgentIncidentPersistence } from "./incident-persistence.js";
 import { VoiceLatencyCollector } from "./latency.js";
 import { buildInterruptibleGreeting } from "./prompt.js";
@@ -68,7 +66,6 @@ function incidentIdFromRoomName(roomName: string): string | undefined {
 
 async function runStewardSession(ctx: JobContext): Promise<void> {
   const config = loadAgentRuntimeConfig();
-  const capabilities = await probeA1RuntimeCapabilities(config);
   await ctx.connect();
   const participant = await ctx.waitForParticipant();
   const metadata = {
@@ -176,7 +173,13 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
       eotTimeoutMs: 1_000,
       tags: ["steward", channel],
     }),
-    llm: new A1ResponsesLLM(config),
+    llm: new inference.LLM({
+      model: config.VOICE_LLM_MODEL,
+      modelOptions: {
+        temperature: 0.2,
+        max_completion_tokens: 128,
+      },
+    }),
     tts: new deepgram.TTS({
       apiKey: config.DEEPGRAM_API_KEY,
       model: config.DEEPGRAM_TTS_MODEL,
@@ -186,7 +189,7 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
       llmConnOptions: {
         maxRetry: 1,
         retryIntervalMs: 250,
-        timeoutMs: 6_000,
+        timeoutMs: 5_000,
       },
     },
     turnHandling: {
@@ -208,11 +211,8 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
         backchannelBoundary: [700, 700],
       },
       preemptiveGeneration: {
-        // The a1 Responses gateway is non-streaming. Speculative requests are
-        // canceled whenever Flux refines an interim transcript, which creates
-        // duplicate full requests and rate-limit pressure instead of saving time.
-        enabled: false,
-        preemptiveTts: false,
+        enabled: true,
+        preemptiveTts: true,
         maxSpeechDuration: 10_000,
         maxRetries: 2,
       },
@@ -231,7 +231,18 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
     },
   });
 
-  wireSessionEvents({ session, events, latency, tracer });
+  wireSessionEvents({
+    session,
+    events,
+    latency,
+    tracer,
+    onUnrecoverableLlmError: () => {
+      session.say(
+        "I'm sorry—the response service isn't answering right now. I couldn't safely continue this conversation. Please try the call again.",
+        { allowInterruptions: true, addToChatCtx: false },
+      );
+    },
+  });
 
   ctx.room.on(RoomEvent.DataReceived, (payload, _participant, _kind, topic) => {
     void vision.handleData(topic, payload).catch((error: unknown) => {
@@ -257,7 +268,9 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
 
   await session.start({
     agent: new StewardAgent(events, vision, metadata.incidentGoal, actionTools, {
-      enableVision: channel === "web" && capabilities.visionInput,
+      // Enable only after the selected streaming model passes the deployment's
+      // text, tool, and image capability gates.
+      enableVision: channel === "web" && config.VOICE_LLM_VISION_ENABLED,
       audience: channel === "vendor-call" ? "vendor" : "guest",
     }),
     room: ctx.room,
