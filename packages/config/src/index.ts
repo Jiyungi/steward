@@ -58,7 +58,7 @@ export const agentRuntimeConfigSchema = z.object({
   OPENAI_API_KEY: nonEmptyString,
   OPENAI_BASE_URL: z.url(),
   OPENAI_MODEL: nonEmptyString,
-  VOICE_LLM_MODEL: nonEmptyString.default("google/gemma-4-31b-it"),
+  VOICE_LLM_MODEL: nonEmptyString.default("openai/gpt-4.1-mini"),
   VOICE_LLM_VISION_ENABLED: z
     .enum(["true", "false"])
     .default("false")
