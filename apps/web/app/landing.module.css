@@ -21,8 +21,7 @@
 
 .brand,
 .navLink,
-.primaryAction,
-.secondaryAction {
+.primaryAction {
   text-decoration: none;
 }
 
@@ -39,12 +38,6 @@
   width: 2.25rem;
   height: 2.25rem;
   color: #284c3c;
-}
-
-.navLinks {
-  display: flex;
-  align-items: center;
-  gap: 1.65rem;
 }
 
 .navLink {
@@ -126,19 +119,6 @@
   transform: translateY(-2px);
 }
 
-.secondaryAction {
-  min-height: 3rem;
-  display: inline-flex;
-  align-items: center;
-  color: #284c3c;
-  font-weight: 700;
-}
-
-.secondaryAction:hover {
-  text-decoration: underline;
-  text-underline-offset: 0.28rem;
-}
-
 @media (max-width: 66rem) {
   .landing {
     overflow-y: auto;
@@ -179,10 +159,6 @@
   .mark {
     width: 1.9rem;
     height: 1.9rem;
-  }
-
-  .navLinks {
-    gap: 1rem;
   }
 
   .navLink {

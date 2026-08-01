@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 interface OwnerIncidentRow {
@@ -275,8 +274,6 @@ export function OwnerWorkspace() {
           </ol>
         )}
       </section>
-
-      <Link className="demo-link" href="/owner/demo">Demo setup</Link>
     </div>
   );
 }

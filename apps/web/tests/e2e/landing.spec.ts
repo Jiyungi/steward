@@ -24,7 +24,7 @@ test.describe("landing foundation", () => {
 
     await expect(page.getByRole("navigation", { name: "Primary navigation" })).toBeVisible();
     await expect(page.getByRole("heading", { level: 1, name: "When something breaks, call Steward." })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Talk to Steward" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Try Steward live" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Steward home" })).toContainText("Steward");
     await expect(page.getByTestId("scene-fallback")).toBeAttached();
     await expect(page.getByTestId("three-scene")).toHaveCount(0);
@@ -33,8 +33,8 @@ test.describe("landing foundation", () => {
   test("keeps the landing focused on the product and primary actions", async ({ page }) => {
     await page.goto("/");
 
-    await expect(page.getByRole("link", { name: "Talk to Steward" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Open owner view" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Try Steward live" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Owner workspace" })).toHaveCount(0);
     await expect(page.getByRole("button")).toHaveCount(0);
   });
 
@@ -45,7 +45,7 @@ test.describe("landing foundation", () => {
     await expect(page.locator("[data-scene-state='unsupported']")).toBeVisible();
     await expect(page.getByTestId("scene-fallback")).toBeVisible();
     await expect(page.getByRole("status")).toContainText("complete static scene");
-    await expect(page.getByRole("link", { name: "Talk to Steward" })).toBeEnabled();
+    await expect(page.getByRole("link", { name: "Try Steward live" })).toBeEnabled();
   });
 
   test("reduced motion preserves a stable composition and all content", async ({ page }) => {
@@ -55,7 +55,7 @@ test.describe("landing foundation", () => {
     expect(await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches)).toBe(true);
     await expect(page.getByTestId("scene-fallback")).toBeAttached();
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Talk to Steward" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Try Steward live" })).toBeVisible();
 
     const canvas = page.getByTestId("three-scene");
     if ((await canvas.count()) > 0) {
@@ -88,7 +88,7 @@ test.describe("landing foundation", () => {
     await page.goto("/");
 
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Talk to Steward" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Try Steward live" })).toBeVisible();
     await expect(page.getByTestId("scene-fallback")).toBeVisible();
     await context.close();
   });

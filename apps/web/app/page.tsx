@@ -11,10 +11,7 @@ export default function LandingPage() {
         <Link className={styles.brand} href="/" aria-label="Steward home">
           <StewardLogo markClassName={styles.mark} />
         </Link>
-        <div className={styles.navLinks}>
-          <Link className={styles.navLink} href="/owner">Owner workspace</Link>
-          <Link className={styles.navLink} href="/vendor/demo">Vendor workspace</Link>
-        </div>
+        <Link className={styles.navLink} href="/demo">Live demo</Link>
       </nav>
 
       <section className={styles.hero} aria-labelledby="landing-title">
@@ -28,8 +25,7 @@ export default function LandingPage() {
             We help your guest, contact approved vendors, and follow the job through.
           </p>
           <div className={styles.actions}>
-            <Link className={styles.primaryAction} href="/voice">Try the live call</Link>
-            <Link className={styles.secondaryAction} href="/owner">Open owner workspace</Link>
+            <Link className={styles.primaryAction} href="/demo">Try Steward live</Link>
           </div>
         </div>
       </section>

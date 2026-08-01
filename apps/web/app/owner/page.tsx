@@ -17,8 +17,7 @@ export default function OwnerPage() {
           <StewardLogo markClassName="wordmark-logo" />
         </Link>
         <nav aria-label="Workspace navigation">
-          <Link href="/owner" aria-current="page">Owner</Link>
-          <Link href="/vendor/demo">Vendor</Link>
+          <Link href="/owner" aria-current="page">Properties</Link>
         </nav>
         <span className="system-state"><span aria-hidden="true" />Live</span>
       </header>

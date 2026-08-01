@@ -72,7 +72,7 @@ export function OwnerConsole() {
   const [notice, setNotice] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
   const [demoEmail, setDemoEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [label, setLabel] = useState("Judge-controlled vendor");
+  const [label, setLabel] = useState("Demo vendor");
   const [code, setCode] = useState("");
   const [pendingContactId, setPendingContactId] = useState<string | null>(null);
 
@@ -119,9 +119,10 @@ export function OwnerConsole() {
     if (snapshot.incident === null) return;
     setBusy("otp-request"); setNotice(null);
     try {
+      const phoneE164 = phone.replace(/[\s()-]/g, "");
       const body = await jsonRequest<{ contactId: string; phoneLast4: string }>("/api/a1/verification/request", {
         method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ incidentId: snapshot.incident.id, phoneE164: phone, label, idempotencyKey: newActionKey("verify-request") }),
+        body: JSON.stringify({ incidentId: snapshot.incident.id, phoneE164, label, idempotencyKey: newActionKey("verify-request") }),
       });
       setPendingContactId(body.contactId);
       setNotice({ kind: "ok", text: `a1mobile accepted the OTP request for the number ending ${body.phoneLast4}.` });
@@ -186,13 +187,12 @@ export function OwnerConsole() {
         ) : (
           <>
             <section className="section-block">
-              <h2>Controlled vendor phone</h2>
-              <p>a1mobile sends the code. Calls and texts remain disabled until the number is confirmed.</p>
+              <h2>Verify your phone</h2>
               <div className="field-stack">
-                <label>Vendor label<input value={label} onChange={(event) => setLabel(event.target.value)} /></label>
+                <label>Vendor name<input value={label} onChange={(event) => setLabel(event.target.value)} /></label>
                 <div className="inline-fields">
-                  <label>Phone in E.164<input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+14155550123" /></label>
-                  <button className="button button-primary" type="button" onClick={requestOtp} disabled={busy !== null || !/^\+[1-9]\d{7,14}$/.test(phone)}>Send OTP</button>
+                  <label>Phone number (+country code)<input type="tel" autoComplete="tel" value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+1 415 555 0123" /></label>
+                  <button className="button button-primary" type="button" onClick={requestOtp} disabled={busy !== null || !/^\+[1-9]\d{7,14}$/.test(phone.replace(/[\s()-]/g, ""))}>Text me a code</button>
                 </div>
                 {pendingContactId !== null ? (
                   <div className="inline-fields">
@@ -204,8 +204,7 @@ export function OwnerConsole() {
             </section>
 
             <section className="section-block">
-              <h2>Proof actions</h2>
-              <p>Actions target only the approved, verified contact below. Each result is written to the incident timeline.</p>
+              <h2>Call the vendor</h2>
               <div className="approved-row">
                 <div>
                   <strong>{verifiedVendor?.name ?? "No verified vendor yet"}</strong>
