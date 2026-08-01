@@ -19,6 +19,7 @@ const systemActor = { kind: "system" as const, component: "agent" as const };
 
 export class VisionCoordinator {
   readonly #pending = new Map<string, VisionRequest>();
+  #cameraAuthorized = false;
 
   constructor(
     private readonly events: ContractEventPublisher,
@@ -27,6 +28,10 @@ export class VisionCoordinator {
       request: VisionRequest,
     ) => Promise<void>,
   ) {}
+
+  get cameraAuthorized(): boolean {
+    return this.#cameraAuthorized;
+  }
 
   async request(input: {
     question: string;
@@ -111,6 +116,7 @@ export class VisionCoordinator {
       throw new Error("Vision response does not match an active request");
     }
     this.#pending.delete(response.requestId);
+    this.#cameraAuthorized = response.status === "accepted";
 
     await this.events.incident({
       version: 1,

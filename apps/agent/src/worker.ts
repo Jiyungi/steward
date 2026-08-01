@@ -110,6 +110,30 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
   const speech = new HumanSpeechController();
   const actionRuntime = new AgentActionRuntime(incidentId, databaseConfig, providerConfig);
   const frameSource = new LiveKitVisionFrameSource(ctx.room, participant);
+  const captureCurrentVisual = async () => {
+    const frame = await frameSource.captureFrame(2_500);
+    if (frame === null) return null;
+    const evidenceRef = `vision-frame:${randomUUID()}`;
+    await events.incident({
+      version: 1,
+      type: "evidence.recorded",
+      incidentId,
+      eventId: randomUUID(),
+      occurredAt: new Date().toISOString(),
+      actor: { kind: "system", component: "agent" },
+      payload: {
+        evidenceRef,
+        kind: "video-frame",
+        summary: "A fresh consented camera frame was supplied for one diagnostic inference; the raw frame was not stored.",
+      },
+    });
+    return llm.createImageContent({
+      image: frame,
+      inferenceDetail: "low",
+      inferenceWidth: 640,
+      inferenceHeight: 480,
+    });
+  };
   let session!: voice.AgentSession<{
     incidentId: string;
     channel: VoiceChannel;
@@ -125,8 +149,8 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
       return;
     }
 
-    const frame = await frameSource.captureFrame();
-    if (frame === null) {
+    const image = await captureCurrentVisual();
+    if (image === null) {
       session.generateReply({
         instructions: "The guest accepted camera access, but no usable frame arrived. State that plainly and continue with voice-only troubleshooting.",
         allowInterruptions: true,
@@ -134,27 +158,13 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
       return;
     }
 
-    const evidenceRef = `vision-frame:${request.id}`;
-    await events.incident({
-      version: 1,
-      type: "evidence.recorded",
-      incidentId,
-      eventId: randomUUID(),
-      occurredAt: new Date().toISOString(),
-      actor: { kind: "system", component: "agent" },
-      payload: {
-        evidenceRef,
-        kind: "video-frame",
-        summary: "A current consented camera frame was supplied for one diagnostic inference; the raw frame was not stored.",
-      },
-    });
     const userMessage = new llm.ChatMessage({
       role: "user",
       content: [
         `Inspect only this current camera frame to answer the open diagnostic question: ${request.question} Describe what is actually visible. If it is unrelated, dark, blurry, blocked, or contradictory, say which uncertainty applies. Do not infer an object, defect, or outcome that the frame does not support.`,
-        llm.createImageContent({ image: frame, inferenceDetail: "high" }),
+        image,
       ],
-      extra: { visionRequestId: request.id, evidenceRef },
+      extra: { visionRequestId: request.id },
     });
     session.generateReply({
       userInput: userMessage,
@@ -202,7 +212,7 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
       },
       interruption: {
         enabled: true,
-        mode: "adaptive",
+        mode: "vad",
         discardAudioIfUninterruptible: true,
         minDuration: 250,
         minWords: 0,
@@ -272,6 +282,10 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
       // text, tool, and image capability gates.
       enableVision: channel === "web" && config.VOICE_LLM_VISION_ENABLED,
       audience: channel === "vendor-call" ? "vendor" : "guest",
+      ...(channel === "web" ? {
+        captureVisualForTurn: async () =>
+          vision.cameraAuthorized ? captureCurrentVisual() : null,
+      } : {}),
     }),
     room: ctx.room,
     record: {
