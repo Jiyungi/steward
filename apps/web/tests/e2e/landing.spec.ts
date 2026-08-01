@@ -34,7 +34,7 @@ test.describe("landing foundation", () => {
     await page.goto("/");
 
     await expect(page.getByRole("link", { name: "Try Steward live" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Owner workspace" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Owner workspace" })).toHaveAttribute("href", "/owner");
     await expect(page.getByRole("button")).toHaveCount(0);
   });
 

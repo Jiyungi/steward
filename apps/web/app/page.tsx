@@ -11,7 +11,7 @@ export default function LandingPage() {
         <Link className={styles.brand} href="/" aria-label="Steward home">
           <StewardLogo markClassName={styles.mark} />
         </Link>
-        <Link className={styles.navLink} href="/demo">Live demo</Link>
+        <Link className={styles.navLink} href="/owner">Owner workspace</Link>
       </nav>
 
       <section className={styles.hero} aria-labelledby="landing-title">
