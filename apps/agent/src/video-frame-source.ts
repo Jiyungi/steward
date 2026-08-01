@@ -7,10 +7,14 @@ import {
   type RemoteTrackPublication,
   type Room,
   type VideoFrame,
+  type VideoFrameEvent,
 } from "@livekit/rtc-node";
 
 export class LiveKitVisionFrameSource {
   #track: RemoteTrack | undefined;
+  #reader: ReadableStreamDefaultReader<VideoFrameEvent> | undefined;
+  #readerTrack: RemoteTrack | undefined;
+  #pendingFrame: Promise<ReadableStreamReadResult<VideoFrameEvent>> | undefined;
   readonly #waiting = new Set<(track: RemoteTrack) => void>();
 
   constructor(
@@ -30,22 +34,22 @@ export class LiveKitVisionFrameSource {
     const track = this.#track ?? await this.#waitForTrack(timeoutMs);
     if (track === null) return null;
 
-    const stream = new VideoStream(track);
-    const reader = stream.getReader();
+    const reader = this.#readerFor(track);
+    const pendingFrame = this.#pendingFrame ?? reader.read();
+    this.#pendingFrame = pendingFrame;
     let timeout: ReturnType<typeof setTimeout> | undefined;
     try {
       const result = await Promise.race([
-        reader.read(),
+        pendingFrame,
         new Promise<null>((resolve) => {
           timeout = setTimeout(() => resolve(null), timeoutMs);
         }),
       ]);
       if (result === null || result.done) return null;
+      if (this.#pendingFrame === pendingFrame) this.#pendingFrame = undefined;
       return result.value.frame;
     } finally {
       if (timeout !== undefined) clearTimeout(timeout);
-      await reader.cancel().catch(() => undefined);
-      reader.releaseLock();
     }
   }
 
@@ -54,6 +58,25 @@ export class LiveKitVisionFrameSource {
     this.room.off(RoomEvent.TrackUnsubscribed, this.#onTrackUnsubscribed);
     this.#waiting.clear();
     this.#track = undefined;
+    this.#resetReader();
+  }
+
+  #readerFor(track: RemoteTrack): ReadableStreamDefaultReader<VideoFrameEvent> {
+    if (this.#reader !== undefined && this.#readerTrack === track) return this.#reader;
+    this.#resetReader();
+    this.#readerTrack = track;
+    this.#reader = new VideoStream(track).getReader();
+    return this.#reader;
+  }
+
+  #resetReader(): void {
+    const reader = this.#reader;
+    this.#reader = undefined;
+    this.#readerTrack = undefined;
+    this.#pendingFrame = undefined;
+    if (reader !== undefined) {
+      void reader.cancel().catch(() => undefined).finally(() => reader.releaseLock());
+    }
   }
 
   #waitForTrack(timeoutMs: number): Promise<RemoteTrack | null> {
@@ -96,5 +119,6 @@ export class LiveKitVisionFrameSource {
       && publication.kind === TrackKind.KIND_VIDEO
       && this.#track === track
     ) this.#track = undefined;
+    if (this.#readerTrack === track) this.#resetReader();
   };
 }

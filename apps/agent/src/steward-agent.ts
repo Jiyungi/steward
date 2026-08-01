@@ -60,7 +60,7 @@ export class StewardAgent extends voice.Agent {
       item.content = filtered;
     }
 
-    const asksForCurrentView = /\b(look again|look now|what do you see|can you see|do you see|here it is|here's|showing you|camera now|see this|see it now)\b/i.test(transcript);
+    const asksForCurrentView = /\b(look(?:ing)?(?: at (?:this|it))? (?:again|now)|what (?:do you see|about now)|can you see|do you see|here it is|here's|showing you|camera now|see (?:this|it) now)\b/i.test(transcript);
     if (asksForCurrentView && this.#captureVisualForTurn !== undefined) {
       const freshImage = await this.#captureVisualForTurn(transcript);
       if (freshImage !== null) {

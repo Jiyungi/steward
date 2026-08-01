@@ -121,7 +121,10 @@ export function VoiceConsole() {
     if (status === "accepted" && !canStartCamera(request, "accepted")) return;
     if (status === "accepted") {
       try {
-        await room.localParticipant.setCameraEnabled(true);
+        await room.localParticipant.setCameraEnabled(true, {
+          facingMode: "environment",
+          resolution: { width: 640, height: 480, frameRate: 15 },
+        });
         setCameraOn(true);
       } catch {
         status = "failed";

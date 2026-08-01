@@ -175,6 +175,9 @@ async function runStewardSession(ctx: JobContext): Promise<void> {
 
   session = new voice.AgentSession({
     userData: { incidentId, channel, speech, vision },
+    // Deepgram Flux already supplies end-of-turn detection. Avoid loading the
+    // default local Silero VAD, which added roughly 2 GB per job process.
+    vad: null,
     stt: new deepgram.STTv2({
       apiKey: config.DEEPGRAM_API_KEY,
       model: config.DEEPGRAM_STT_MODEL,
